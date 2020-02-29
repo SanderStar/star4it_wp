@@ -2,7 +2,7 @@
 /*
 * Plugin Name: Star4It
 * Description: Star4It Wordpress components.
-* Version: 1.2
+* Version: 1.4
 * Author: Sander Star
 * Author URI: https://sanderstar.wordpress.com
 */
@@ -476,24 +476,22 @@ add_shortcode('komende_diensten', 'wp_coming_events');
 // TODO; maybe change to rsnippet for backwards compability
 function wp_dienst_media($atts, $content = null) {
 	
-   /*
-    Let op dat de SSL plugin niet automatisch http vervangt door https.
-    Anders werkt de audio control niet meer.
-   */
    $options = get_option( 'my_option_name' );
    
-   $url = $options["churchserviceurl"].$content;
+   $url = $options["churchserviceurl"];
   
+   $media = $content;
+
    // Downloaden uitgezet vanwege licentie kosten (zie emails)
    $content = '<audio controls="true" controlsList="nodownload">';
-   $content = $content.'<source src="'.$url.'" type="audio/mpeg">';
+   $content = $content.'<source src="'.$url.'?media='.$media.'" type="audio/mpeg">';
    $content = $content.'</audio>';
-   
-   $content = $content.'<p/>';
-   $content = $content.'<p/>';
 
-   //$content = $content.'<a href="'.$url.'" target="_blank" download>Download</a>';
+   $content = $content.'<p/>';
+   $content = $content.'<p/>';
    
+   $content = $content.'<a href="'.$url.'?media='.$media.'" target="_blank">Direct de opgenomen dienst luisteren</a>';
+
    return $content;
 }
 
