@@ -32,3 +32,8 @@ werkt
 https://www.star4it.nl/test/mp3Proxy.php
 
 https://www.star4it.nl/test/mp3ProxyAlt.php
+
+
+Installatie Wordpress
+---------------------
+In www folder en dan proxy folder
