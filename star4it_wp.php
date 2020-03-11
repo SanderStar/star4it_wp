@@ -343,7 +343,7 @@ function wp_webcam() {
 	$content .= $newline;
 	$content .= "	var url = BaseURL;";
 	$content .= $newline;
-	$content .= "	url += '&dummy=' + theDate.getTime().toString(10);";
+	$content .= "	url += '?dummy=' + theDate.getTime().toString(10);";
 	$content .= $newline;
 	$content .= "	// The dummy above enforces a bypass of the browser image cache";
 	$content .= $newline;
@@ -490,6 +490,7 @@ function wp_dienst_media($atts, $content = null) {
    $content = $content.'<p/>';
    $content = $content.'<p/>';
    
+   // TODO eens uitzetten
    $content = $content.'<a href="'.$url.'?media='.$media.'" target="_blank">Direct de opgenomen dienst luisteren</a>';
 
    return $content;
