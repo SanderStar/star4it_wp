@@ -30,7 +30,7 @@ if ("test" == $media) {
     $mount  = "live";
 } else {
     $server = "80.60.61.114";
-    $port   = "8080";
+    $port   = "8000";
     $mount  = "high";
 }
 
