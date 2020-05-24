@@ -483,6 +483,7 @@ function wp_dienst_media($atts, $content = null) {
    $media = $content;
 
    // Downloaden uitgezet vanwege licentie kosten (zie emails)
+   // Via proxy geen mogelijkheid tot doorspoelen, terugspelen of totale tijdsduur zien
    $content = '<audio controls="true" controlsList="nodownload">';
    $content = $content.'<source src="'.$url.'?media='.$media.'" type="audio/mpeg">';
    $content = $content.'</audio>';
@@ -491,7 +492,13 @@ function wp_dienst_media($atts, $content = null) {
    $content = $content.'<p/>';
    
    // TODO eens uitzetten
-   $content = $content.'<a href="'.$url.'?media='.$media.'" target="_blank">Direct de opgenomen dienst luisteren</a>';
+   $server = "86.87.234.78";
+   $port = "80";
+   $path = "diensten";
+   $url = "http://".$server.":".$port."/".$path."/".$media;
+
+   // Vergeet eerdere vulling van $content (proxy werkt niet goed genoeg)
+   $content = '<a href="'.$url.'" target="_blank">Direct luisteren opgenomen dienst</a>';
 
    return $content;
 }
