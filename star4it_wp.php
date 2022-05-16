@@ -2,7 +2,7 @@
 /*
 * Plugin Name: Star4It
 * Description: Star4It Wordpress components.
-* Version: 1.4
+* Version: 1.6
 * Author: Sander Star
 * Author URI: https://sanderstar.wordpress.com
 */
@@ -256,6 +256,7 @@ function wp_vers_of_day() {
 	$cachefile=dirname(__FILE__).'/dagelijkswoord-cache.json';
 	$cacheseconds=3600; // 1 uur cache
 
+// TODO improve if cache file is leeg, dan werkt het tijdelijk niet.
 	if(file_exists($cachefile) && (time()-filemtime($cachefile)< $cacheseconds)){
 		  $result=file_get_contents($cachefile);
 	}else{
@@ -275,7 +276,7 @@ function wp_vers_of_day() {
 	$array = json_decode($result, true);
 	foreach ($array as $key => $jsons) {
 		// titel bijbelvertaling en disclaimer copyright
-		array_push($tekst, $jsons["nbv"]);
+		array_push($tekst, $jsons["nbg21"]);
 		$counterElement = 1;
 		foreach ($jsons as $key => $value) {
 			if (is_array($value)) {
@@ -286,7 +287,7 @@ function wp_vers_of_day() {
 						foreach ($item as $text) {
 							// alleen specfieke bijbelvertaling tonen
 							if ($counterText == 1 and $currentDate == true) {
-								array_push($details, $item["nbv"]);
+								array_push($details, $item["nbg21"]);
 							}
 							$counterText++;
 						}
