@@ -10,9 +10,6 @@ $details = array();
 $array = json_decode($result, true);
 
 // titel bijbelvertaling en disclaimer copyright
-// TODO fix; json formaat gewijzigd
-//array_push($tekst, $jsons["translation"]);
-
 $translations = $array['translations'];
 $tekst = $translations["nbg21"];
 
