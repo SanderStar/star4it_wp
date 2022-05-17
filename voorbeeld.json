@@ -1,0 +1,91 @@
+{
+	"_readme": {
+		"how_to_use": "Please visit https://www.dagelijkswoord.nl/verspreiden/json-feed",
+		"donatie": "Deze informatie wordt u gratis aangeboden door Stichting Dagelijks Woord. Wilt u een bijdrage leveren om het doorontwikkelen van deze app en andere bijbel-diensten mogelijk te maken, dan kan dat via http://www.dagelijkswoord.nl/over/donatie",
+		"use in an app": "Als u \"onze\" content gebruikt in uw app, gaat dat ten koste van het aantal gebruikers wat onze eigen app gebruikt. Dat is prima, het belangrijkste is dat mensen Gods Woord lezen. Maar bij minder gebruikers van de app missen we wel de inkomsten die we hard nodig hebben om onze eigen Bijbel-diensten door te ontwikkelen. Daarom vragen we u vriendelijk op de eerste niet-zondag tussen kerst en de jaarwisseling de tekst uit in_app_use.app_text aan gebruikers te tonen en hierbij de link uit in_app_use.app_link te gebruiken. Dit is niet verplicht, maar wordt wel zeer op prijs gesteld.",
+		"link": "If you're using the data from this feed, please be so kind to link to our website."
+	},
+	"in_app_use": {
+		"app_text": "Deze app maakt gebruik van de Bijbelteksten van Stichting Dagelijks Woord. Steunt u de doorontwikkeling van Dagelijks Woord met een bijdrage?",
+		"app_link": "https://www.dagelijkswoord.nl/inbound-link/donate/?query_from=%YOURAPPNAME%"
+	},
+	"translations": {
+		"nbv": "Nieuwe Bijbelvertaling",
+		"nbg": "NBG51",
+		"statenvertaling": "Statenvertaling",
+		"willibrord": "Willibrord",
+		"hsv": "Herziene Statenvertaling",
+		"naardense": "Naardense Bijbel",
+		"bgt": "Bijbel in Gewone Taal",
+		"nbg21": "NBV21",
+		"bb": "BasisBijbel"
+	},
+	"copyrights": {
+		"willibrord": "De bijbeltekst in deze uitgave is ontleend aan de Willibrordvertaling (herziene editie), (C) Katholieke Bijbelstichting 1995.",
+		"statenvertaling": "De bijbeltekst in deze uitgave is ontleend aan de Statenvertaling 1977, (C) Nederlands Bijbelgenootschap 1977.",
+		"nbv": "De bijbeltekst in deze uitgave is ontleend aan De Nieuwe Bijbelvertaling, (C) Nederlands Bijbelgenootschap 2004/2007.",
+		"nbg": "De bijbeltekst in deze uitgave is ontleend aan de NBG-vertaling 1951, (C) Nederlands Bijbelgenootschap 1951",
+		"naardense": "De bijbeltekst in deze uitgave is ontleend aan de Naardense Bijbel, (C) Uitgeverij Skandalon",
+		"hsv": "De bijbeltekst in deze uitgave is ontleend aan de Bijbel in de Herziene Statenvertaling, (C) Stichting HSV 2010. Alle rechten voorbehouden, (C) Stichting HSV en Uitgeverij Jongbloed - Heerenveen.",
+		"bgt": "Deze bijbeltekst komt uit de Bijbel in Gewone Taal, (C) Nederlands Bijbelgenootschap 2014.",
+		"nbg21": "De bijbeltekst in deze uitgave is ontleend aan de NBV21 (C) Nederlands-Vlaams Bijbelgenootschap 2021",
+		"bb": "Het copyright berust bij stichting BasisBijbel. Alle rechten voorbehouden."
+	},
+	"data": [
+		{
+			"ts": "2022-05-17",
+			"source": "Hebreeen 7:25-26",
+			"fulltext": "http://bijbel.dagelijkswoord.nl/bijbel/Hebreeen+7%3A25-26?from=json",
+			"wpId": "7341",
+			"text": {
+				"nbv": "Zo kan hij ieder die door hem tot God komt volkomen redden, omdat hij voor altijd leeft en zo voor hen kan pleiten. Een hogepriester als hij hadden we ook nodig, iemand die heilig, schuldeloos en zuiver is, van de zondaars afgescheiden en ver boven de hemel verheven.",
+				"nbg": "Daarom kan Hij ook volkomen behouden, wie door Hem tot God gaan, daar Hij altijd leeft om voor hen te pleiten. Immers, zulk een hogepriester hadden wij ook nodig: heilig, zonder schuld of smet, gescheiden van de zondaren en boven de hemelen verheven.",
+				"nbg21": "Zo kan Hij allen die God door Hem naderen volkomen redden, omdat Hij voor altijd leeft en zo voor hen kan pleiten. Een hogepriester als Hij hadden we ook nodig, iemand die heilig, schuldeloos en zuiver is, van de zondaars afgescheiden en ver boven de hemelsferen verheven.",
+				"bb": "Daarom kan Hij ook álle mensen redden die door Hem naar God toe komen. Want Hij leeft voor altijd om bij God voor hen op te komen.  Zo'n Hogepriester hadden we ook nodig: volmaakt, zonder ooit ongehoorzaam te zijn aan God, smetteloos, en hoog boven elk ander wezen geplaatst in de geestelijke wereld.",
+				"statenvertaling": "Waarom Hij ook volkomenlijk kan zalig maken degenen, die door Hem tot God gaan, alzo Hij altijd leeft om voor hen te bidden. Want zodanig een Hogepriester betaamde ons, heilig, onnozel, onbesmet, afgescheiden van de zondaren, en hoger dan de hemelen geworden.",
+				"willibrord": "Daarom is Hij ook in staat om hen, die door zijn tussenkomst tot God naderen, voor altijd te redden, omdat Hij altijd leeft om voor hen te pleiten. Zo'n hogepriester hadden wij ook nodig: een die heilig is, schuldeloos, onbesmet, afgescheiden van de zondaars, en hoog verheven boven de hemelen.",
+				"hsv": "Daarom kan Hij ook volkomen zalig maken wie door Hem tot God gaan, omdat Hij altijd leeft om voor hen te pleiten. Want zo'n Hogepriester hadden wij nodig: heilig, onschuldig, onbesmet, afgescheiden van de zondaars en boven de hemelen verheven.",
+				"naardense": "Daarom kan hij ook geheel en al redden diegenen die door hem tot God komen, want daarvoor leeft hij altijd: om voor hen tussenbeide te komen. Want zo'n hogepriester móesten wij ook hebben: heilig, zonder kwaad, zonder smet, afgescheiden van de zondaars, en verhoogd boven de hemelen.",
+				"bgt": "Maar Jezus leeft voor altijd. Hij blijft dus ook voor altijd priester. Daarom kan hij mensen die via hem bij God komen, voor altijd redden. Want Jezus laat ons niet in de steek. Jezus is de hogepriester die wij nodig hebben. Want hij hoort bij God, en hij heeft nooit iets verkeerds gedaan. Hij is volmaakt goed. En hij woont niet tussen zondige mensen, maar bij God in de hemel."
+			}
+		},
+		{
+			"ts": "2022-05-16",
+			"source": "Lucas 6:30-31",
+			"fulltext": "http://bijbel.dagelijkswoord.nl/bijbel/Lucas+6%3A30-31?from=json",
+			"wpId": "7340",
+			"text": {
+				"nbv": "Behandel anderen zoals je wilt dat ze jullie behandelen. Is het een verdienste als je liefhebt wie jullie liefhebben? Want ook de zondaars hebben degenen lief die hen liefhebben.",
+				"nbg": "En gelijk gij wilt, dat u de mensen doen, doet gij hun evenzo. En indien gij liefhebt, die u liefhebben, wat hebt gij vóór? Immers, ook de zondaars hebben lief, die hen liefhebben.",
+				"nbg21": "Behandel anderen zoals je wilt dat ze jullie behandelen. Is het een verdienste als je liefhebt wie jullie liefhebben? Want ook de zondaars hebben degenen lief die hen liefhebben.",
+				"bb": "Behandel andere mensen op dezelfde manier als je zelf behandeld zou willen worden.  Als je alleen houdt van je vrienden, wat is daar dan voor bijzonders aan? Want ook slechte mensen houden van hun vrienden.",
+				"statenvertaling": "En gelijk gij wilt, dat u de mensen doen zullen, doet gij hun ook desgelijks. En indien gij liefhebt, die u liefhebben, wat dank hebt gij? Want ook de zondaars hebben lief degenen, die hen liefhebben.",
+				"willibrord": "Behandel de mensen zoals je wilt dat ze jullie behandelen. Als jullie je vrienden liefhebben, is er dan reden tot dankbaarheid? Ook de zondaars hebben hun vrienden lief.",
+				"hsv": "En zoals u wilt dat de mensen u doen, doet u hun ook zo. En als u hen liefhebt die u liefhebben, wat voor dank komt u daarvoor toe? Immers, ook de zondaars hebben degenen lief die hen liefhebben.",
+				"naardense": "Zoals ge wilt dat de mensen ú doen, doet aan hen evenzo! Als ge liefhebt wie ú liefhebben, wat voor genade is dat bij u? Ook de zondaars immers hebben lief wie hén liefhebben!",
+				"bgt": "Behandel andere mensen net zoals je zelf behandeld wilt worden. Stel dat je alleen van je vrienden houdt. Verdien je dan een beloning van God? Nee, want ook slechte mensen houden van hun vrienden."
+			}
+		},
+		{
+			"ts": "2022-05-15",
+			"source": "Hosea 14:5",
+			"fulltext": "http://bijbel.dagelijkswoord.nl/bijbel/Hosea+14%3A5?from=json",
+			"wpId": "7339",
+			"text": {
+				"nbv": "Ik genees hen van hun ontrouw, mijn hart gaat naar hen uit. Mijn toorn heb ik laten varen.",
+				"nbg": "Ik zal hun afkerigheid genezen, Ik zal hen vrijwillig liefhebben, want mijn toorn keert zich van hen af.",
+				"nbg21": "Ik genees hen van hun ontrouw, mijn hart gaat naar hen uit. Mijn toorn heb Ik van hen afgewend.",
+				"bb": "De Heer zegt: Dan zal Ik hen genezen: Ik zal ervoor zorgen dat ze niet meer bij Mij willen weglopen. Ik zal weer van hen houden. Ik zal niet langer boos op hen zijn.",
+				"statenvertaling": "Ik zal hunlieder afkering genezen, Ik zal hen vrijwilliglijk liefhebben; want Mijn toorn is van hem gekeerd.",
+				"willibrord": "Ik wil hen van hun ontrouw genezen en hun van harte mijn liefde schenken. Mijn toorn heeft zich van hem afgewend.",
+				"hsv": "Ik zal hun afkerigheid genezen, Ik zal hen vrijwillig liefhebben, want Mijn toorn heeft zich van hem afgewend.",
+				"naardense": "Ik zal hen genezen van hun afkerigheid, ik zal hen ongedwongen liefhebben,- want afkeren zal zich van hem mijn toorn!",
+				"bgt": "De Heer zegt: Ik zal zorgen dat de Israëlieten mij niet meer ontrouw zijn. Ik zal met heel mijn hart van hen houden. Mijn woede is voorbij."
+			}
+		}
+	],
+	"debug_info": {
+		"worker": "work_edge",
+		"generated": "2022-05-17 08:41:45"
+	}
+}
