@@ -2,7 +2,7 @@
 /*
 * Plugin Name: Star4It
 * Description: Star4It Wordpress components.
-* Version: 1.7
+* Version: 1.8
 * Author: Sander Star
 * Author URI: https://sanderstar.wordpress.com
 */
@@ -372,7 +372,14 @@ function wp_webcam() {
 
 add_shortcode('webcam', 'wp_webcam');
 
+/*
+  TODO improve
+  get_the_excerpt( int|WP_Post $post = null ): string
 
+  set_the_excerpt -> url van het bericht ->  get_permalink($event->ID),
+
+  https://developer.wordpress.org/reference/functions/get_the_excerpt/
+*/
 // Opgenomen diensten
 function wp_recorded_events($atts, $data = null) {
  /*
@@ -495,14 +502,15 @@ function wp_dienst_media($atts, $content = null) {
    $content = $content.'<p/>';
    $content = $content.'<p/>';
    
-   // TODO eens uitzetten
+   // TODO server timeout.
    $server = "86.87.234.78";
    $port = "80";
    $path = "diensten";
    $url = "http://".$server.":".$port."/".$path."/".$media;
 
    // Vergeet eerdere vulling van $content (proxy werkt niet goed genoeg)
-   $content = '<a href="'.$url.'" target="_blank">Direct luisteren opgenomen dienst</a>';
+   //$content = '<a href="'.$url.'" target="_blank">Direct luisteren opgenomen dienst</a>';
+   $content = '<a href="" target="_blank">Direct luisteren opgenomen dienst NIET meer mogelijk</a>';
 
    return $content;
 }
