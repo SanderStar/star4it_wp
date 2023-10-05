@@ -2,7 +2,7 @@
 /*
 * Plugin Name: Star4It
 * Description: Star4It Wordpress components.
-* Version: 1.8
+* Version: 1.9
 * Author: Sander Star
 * Author URI: https://sanderstar.wordpress.com
 */
@@ -277,7 +277,7 @@ function wp_vers_of_day() {
 
     // titel bijbelvertaling en disclaimer copyright
     $translations = $array['translations'];
-    $tekst = $translations["nbg21"];
+    $tekst = $translations["nbv21"];
 
     foreach ($array as $key => $jsons) {
 		$counterElement = 1;
@@ -290,7 +290,7 @@ function wp_vers_of_day() {
 						foreach ($item as $text) {
 							// alleen specfieke bijbelvertaling tonen
 							if ($counterText == 1 and $currentDate == true) {
-								array_push($details, $item["nbg21"]);
+								array_push($details, $item["nbv21"]);
 							}
 							$counterText++;
 						}
