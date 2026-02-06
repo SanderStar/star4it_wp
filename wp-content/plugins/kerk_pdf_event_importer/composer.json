@@ -1,0 +1,13 @@
+{
+    "name": "sanderstar1/kerk-pdf-event-importer",
+    "description": "WordPress plugin to import events from PDF for Event Organiser.",
+    "type": "wordpress-plugin",
+    "require": {
+        "smalot/pdfparser": "^2.12"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "php -r \"$zip = new ZipArchive; $zip->open('kerk_pdf_event_importer.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE); function addDir($zip,$dir,$base){foreach(scandir($dir) as $f){if($f=='.'||$f=='..')continue;$path=\"$dir/$f\";$local=\"$base/$f\";if(is_dir($path)){addDir($zip,$path,$local);}else{$zip->addFile($path,$local);}}} addDir($zip,'.','kerk_pdf_event_importer'); addDir($zip,'../vendor','kerk_pdf_event_importer/vendor'); $zip->close();\""
+        ]
+    }
+}
