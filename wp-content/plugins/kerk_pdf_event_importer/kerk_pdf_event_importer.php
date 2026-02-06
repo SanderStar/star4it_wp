@@ -2,7 +2,7 @@
 /*
 Plugin Name: Kerk PDF Event Importer
 Description: Upload a PDF, extract events, and create Event Organiser events.
-Version: 1.10
+Version: 1.23
 Author: Sander Star
 */
 
@@ -84,42 +84,28 @@ class Kerk_PDF_Event_Importer {
         if (!$events || !is_array($events)) wp_send_json_error('Invalid JSON');
         $created = 0;
         foreach ($events as $event) {
-            $postarr = [
-                'post_title' => $event['title'] ?? 'Kerkdienst',
-                'post_content' => $event['description'] ?? '',
-                'post_status' => 'publish',
-                'post_type' => 'event',
+
+            $venue = get_term_by( 'name', 'De Lichtbron Valkenburg', 'event-venue' ); 
+            $cat = get_term_by( 'slug', 'kerkdiensten', 'event-category' ); 
+            
+            $args = [ 
+                'post_title' => $event['title'] ?? 'Kerkdienst', 
+                'post_content' => $event['description'] ?? '', 
+                'start' => new DateTime($event['start']), 
+                'end' => new DateTime($event['end']), 
+                'venue' => $venue->slug ?? '', 
+                'post_status' => 'publish'
             ];
-            $event_id = wp_insert_post($postarr);
-            if ($event_id && !is_wp_error($event_id)) {
-                // Set Event Organiser meta fields
-                if (!empty($event['start']) && !empty($event['end'])) {
-                    update_post_meta($event_id, '_event_start_date', $event['start']);
-                    update_post_meta($event_id, '_event_end_date', $event['end']);
+
+            if (function_exists('eo_insert_event')) { 
+                $event_id = eo_insert_event($args); 
+                if ($event_id && !is_wp_error($event_id)) { 
+                    // 🔥 FIX: assign category AFTER event creation 
+                    if ($cat) { 
+                        wp_set_object_terms($event_id, [$cat->slug], 'event-category', false);
+                    } 
+                    $created++;
                 }
-                    // Set event venue to 'De Lichtbron Valkenburg'
-                    $venue_name = 'De Lichtbron Valkenburg';
-                    if (function_exists('eo_get_venue_by_name') && function_exists('eo_insert_venue')) {
-                        $venue = eo_get_venue_by_name($venue_name);
-                        if (!$venue) {
-                            $venue_id = eo_insert_venue(['name' => $venue_name]);
-                        } else {
-                            $venue_id = $venue->term_id;
-                        }
-                        if ($venue_id) {
-                            update_post_meta($event_id, '_event_venue_id', $venue_id);
-                        }
-                    }
-                // Assign category 'Kerkdiensten' (creates if not exists)
-                $term = term_exists('kerkdiensten', 'event-category');
-                if (!$term) {
-                    $term = wp_insert_term('kerkdiensten', 'event-category');
-                }
-                if (!is_wp_error($term)) {
-                    $term_id = is_array($term) ? $term['term_id'] : $term;
-                    wp_set_object_terms($event_id, intval($term_id), 'event-category');
-                }
-                $created++;
             }
         }
         wp_send_json_success("Created $created events.");
