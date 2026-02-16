@@ -2,7 +2,7 @@
 /*
 Plugin Name: Kerk Event Importer
 Description: Import and create Event Organiser events from JSON data.
-Version: 2.6
+Version: 2.11
 Author: Sander Star
 */
 
@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) exit;
 
 class Kerk_Event_Importer {
     public function __construct() {
+            add_action('wp_ajax_kerk_convert_text_to_json', [$this, 'convert_text_to_json']);
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_kerk_process_events', [$this, 'process_events']);
@@ -79,15 +80,31 @@ The title of the event is mentioned after the date time of the event.</textarea>
 
             if (convertBtn && textInput && textbox) {
                 convertBtn.addEventListener('click', function() {
-                    // Simple example: split lines, wrap each as an event with title, add extra info if present
-                    const lines = textInput.value.split('\n').map(l => l.trim()).filter(l => l);
-                    const extra = extraInput ? extraInput.value.trim() : '';
-                    const events = lines.map(line => {
-                        let event = { title: line };
-                        if (extra) event.ai_question = extra;
-                        return event;
+                    const text = textInput.value;
+                    const extra = extraInput ? extraInput.value : '';
+                    resultDiv.textContent = 'Converting...';
+                    fetch(ajaxurl, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: new URLSearchParams({
+                            action: 'kerk_convert_text_to_json',
+                            nonce: '<?php echo wp_create_nonce('kerk_event_nonce'); ?>',
+                            text: text,
+                            extra: extra
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            textbox.value = resp.data;
+                            resultDiv.textContent = '';
+                        } else {
+                            resultDiv.textContent = 'Error: ' + (resp.data || resp.message);
+                        }
+                    })
+                    .catch(e => {
+                        resultDiv.textContent = 'Error: ' + e;
                     });
-                    textbox.value = JSON.stringify(events, null, 2);
                 });
             }
 
@@ -122,6 +139,21 @@ The title of the event is mentioned after the date time of the event.</textarea>
         <?php
     }
 
+    // New AJAX handler for converting text to JSON
+    public function convert_text_to_json() {
+        check_ajax_referer('kerk_event_nonce', 'nonce');
+        if (!current_user_can('manage_options')) wp_send_json_error('Permission denied');
+        $text = isset($_POST['text']) ? trim(stripslashes($_POST['text'])) : '';
+        $extra = isset($_POST['extra']) ? trim(stripslashes($_POST['extra'])) : '';
+        $lines = array_filter(array_map('trim', explode("\n", $text)));
+        $events = [];
+        foreach ($lines as $line) {
+            $event = ['title' => $line];
+            if ($extra !== '') $event['ai_question'] = $extra;
+            $events[] = $event;
+        }
+        wp_send_json_success(json_encode($events, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
 
 
     public function process_events() {
