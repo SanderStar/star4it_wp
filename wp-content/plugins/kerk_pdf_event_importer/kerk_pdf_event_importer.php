@@ -2,7 +2,7 @@
 /*
 Plugin Name: Kerk Event Importer
 Description: Import and create Event Organiser events from JSON data.
-Version: 2.2
+Version: 2.4
 Author: Sander Star
 */
 
@@ -43,6 +43,17 @@ class Kerk_Event_Importer {
         <div class="wrap kerk-steps">
             <h1>Kerk Event Importer</h1>
             <div class="kerk-step">
+                <div class="kerk-step-title">Convert Text to JSON</div>
+                <div class="kerk-step-desc">Paste or enter event text below. Optionally, enter an AI agent question to guide the conversion, then click 'Convert to JSON' to generate a JSON array for import.</div>
+                <div class="kerk-step-actions" style="display: flex; gap: 12px; align-items: flex-start;">
+                    <textarea id="kerk_text_input" rows="6" placeholder="Paste event text here..." style="flex:2;"></textarea>
+                    <input type="text" id="kerk_extra_input" placeholder="AI agent question (optional)" style="flex:1; min-width:220px;" />
+                </div>
+                <div class="kerk-step-actions">
+                    <button id="kerk_convert_json">Convert to JSON</button>
+                </div>
+            </div>
+            <div class="kerk-step">
                 <div class="kerk-step-title">Process Events</div>
                 <div class="kerk-step-desc">Paste or enter the event data (JSON format) below and click 'Process Events' to create WordPress events.</div>
                 <div class="kerk-step-actions">
@@ -59,6 +70,24 @@ class Kerk_Event_Importer {
             const processBtn = document.getElementById('kerk_event_process');
             const textbox = document.getElementById('kerk_event_textbox');
             const resultDiv = document.getElementById('kerk_event_result');
+            const convertBtn = document.getElementById('kerk_convert_json');
+            const textInput = document.getElementById('kerk_text_input');
+            const extraInput = document.getElementById('kerk_extra_input');
+
+            if (convertBtn && textInput && textbox) {
+                convertBtn.addEventListener('click', function() {
+                    // Simple example: split lines, wrap each as an event with title, add extra info if present
+                    const lines = textInput.value.split('\n').map(l => l.trim()).filter(l => l);
+                    const extra = extraInput ? extraInput.value.trim() : '';
+                    const events = lines.map(line => {
+                        let event = { title: line };
+                        if (extra) event.ai_question = extra;
+                        return event;
+                    });
+                    textbox.value = JSON.stringify(events, null, 2);
+                });
+            }
+
             if (processBtn && textbox) {
                 processBtn.addEventListener('click', function() {
                     const data = textbox.value;
