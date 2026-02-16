@@ -2,7 +2,7 @@
 /*
 Plugin Name: Kerk Event Importer
 Description: Import and create Event Organiser events from JSON data.
-Version: 2.4
+Version: 2.6
 Author: Sander Star
 */
 
@@ -47,7 +47,10 @@ class Kerk_Event_Importer {
                 <div class="kerk-step-desc">Paste or enter event text below. Optionally, enter an AI agent question to guide the conversion, then click 'Convert to JSON' to generate a JSON array for import.</div>
                 <div class="kerk-step-actions" style="display: flex; gap: 12px; align-items: flex-start;">
                     <textarea id="kerk_text_input" rows="6" placeholder="Paste event text here..." style="flex:2;"></textarea>
-                    <input type="text" id="kerk_extra_input" placeholder="AI agent question (optional)" style="flex:1; min-width:220px;" />
+                    <textarea id="kerk_extra_input" placeholder="AI agent question (optional)" style="flex:1; min-width:220px;" rows="6">Convert the following text to json array with multiple events.
+Each event has a start and the end will be start plus 1 hour.
+Each line starting with the tekst Collecten can be ignored.
+The title of the event is mentioned after the date time of the event.</textarea>
                 </div>
                 <div class="kerk-step-actions">
                     <button id="kerk_convert_json">Convert to JSON</button>
