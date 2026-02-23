@@ -3,7 +3,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 /*
 Plugin Name: Kerk Event Importer
 Description: Import and create Event Organiser events from JSON data.
-Version: 2.23
+Version: 2.26
 Author: Sander Star
 */
 
@@ -32,6 +32,7 @@ class Kerk_Event_Importer {
 
     public function register_settings() {
         register_setting('kerk_event_importer_options', 'kerk_event_importer_ai_api_key');
+        register_setting('kerk_event_importer_options', 'kerk_event_importer_extra_default');
         add_settings_section(
             'kerk_event_importer_main_section',
             'AI API Instellingen',
@@ -45,11 +46,23 @@ class Kerk_Event_Importer {
             'kerk-event-importer-settings',
             'kerk_event_importer_main_section'
         );
+        add_settings_field(
+            'kerk_event_importer_extra_default',
+            'Standaard AI agent prompt',
+            [$this, 'extra_default_field_html'],
+            'kerk-event-importer-settings',
+            'kerk_event_importer_main_section'
+        );
     }
 
     public function api_key_field_html() {
         $value = esc_attr(get_option('kerk_event_importer_ai_api_key', ''));
         echo '<input type="text" name="kerk_event_importer_ai_api_key" value="' . $value . '" style="width: 400px;" />';
+    }
+
+    public function extra_default_field_html() {
+        $value = esc_textarea(get_option('kerk_event_importer_extra_default', "Convert the following text to json array with multiple events.\nEach event has a start and the end will be start plus 1 hour.\nEach line starting with the tekst Collecten can be ignored.\nThe title of the event is mentioned after the date time of the event."));
+        echo '<textarea name="kerk_event_importer_extra_default" rows="5" style="width: 400px;">' . $value . '</textarea>';
     }
 
     public function settings_page() {
@@ -91,13 +104,10 @@ class Kerk_Event_Importer {
             <div class="kerk-step">
                 <div class="kerk-step-title">Convert Text to JSON</div>
                 <div class="kerk-step-desc">Paste or enter event text below. Optionally, enter an AI agent question to guide the conversion, then click 'Convert to JSON' to generate a JSON array for import.</div>
-                <div class="kerk-step-actions" style="display: flex; gap: 12px; align-items: flex-start;">
-                    <textarea id="kerk_text_input" rows="6" placeholder="Paste event text here..." style="flex:2;"></textarea>
-                    <textarea id="kerk_extra_input" placeholder="AI agent question (optional)" style="flex:1; min-width:220px;" rows="6">Convert the following text to json array with multiple events.
-Each event has a start and the end will be start plus 1 hour.
-Each line starting with the tekst Collecten can be ignored.
-The title of the event is mentioned after the date time of the event.</textarea>
-                </div>
+                    <div class="kerk-step-actions">
+                        <textarea id="kerk_text_input" rows="6" placeholder="Paste event text here..." style="width:100%;margin-bottom:8px;"></textarea>
+                        <textarea id="kerk_extra_input" placeholder="AI agent question (optional)" style="width:100%;min-width:220px;" rows="6"><?php echo esc_textarea(get_option('kerk_event_importer_extra_default', "Convert the following text to json array with multiple events.\nEach event has a start and the end will be start plus 1 hour.\nEach line starting with the tekst Collecten can be ignored.\nThe title of the event is mentioned after the date time of the event.")); ?></textarea>
+                    </div>
                 <div class="kerk-step-actions">
                     <button id="kerk_convert_json">Convert to JSON</button>
                 </div>
@@ -220,16 +230,18 @@ The title of the event is mentioned after the date time of the event.</textarea>
         $response = curl_exec($ch);
         curl_close($ch);
 
-        $lines = array_filter(array_map('trim', explode("\n", $text)));
-        $events = [];
-        foreach ($lines as $line) {
-            $event = ['title' => $line];
-            if ($extra !== '') $event['ai_question'] = $extra;
-            $events[] = $event;
+        $json = json_decode($response, true);
+        $text = '';
+        if (
+            isset($json['candidates'][0]['content']['parts'][0]['text']) &&
+            is_string($json['candidates'][0]['content']['parts'][0]['text'])
+        ) {
+            $text = $json['candidates'][0]['content']['parts'][0]['text'];
+            // Remove ```json and ``` if present
+            $text = preg_replace('/^```json\s*/i', '', $text);
+            $text = preg_replace('/```$/', '', $text);
         }
-
-        wp_send_json_success($response);
-        //TODO wp_send_json_success(json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        wp_send_json_success($text);
     }
 
 
