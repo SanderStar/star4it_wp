@@ -111,6 +111,14 @@ class Kerk_Event_Importer {
         .kerk-step .kerk-step-desc { color: #555; margin-bottom: 8px; }
         </style>
         <div class="wrap kerk-steps">
+        <div id="kerk-progress-overlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,255,255,0.85);z-index:9999;align-items:center;justify-content:center;">
+            <div style="text-align:center;">
+                <div style="margin-bottom:16px;font-size:1.2em;">Processing...</div>
+                <div style="width:200px;height:16px;background:#eee;border-radius:8px;overflow:hidden;margin:0 auto;">
+                    <div id="kerk-progress-bar" style="width:0;height:100%;background:#2980b9;transition:width 0.4s;"></div>
+                </div>
+            </div>
+        </div>
             <h1><?php echo esc_html(__('Kerk Event Importer', 'kerk-pdf-event-importer')); ?></h1>
             <div class="kerk-step">
                 <div class="kerk-step-title"><?php echo esc_html(__('Convert Text to JSON', 'kerk-pdf-event-importer')); ?></div>
@@ -143,12 +151,34 @@ class Kerk_Event_Importer {
             const convertBtn = document.getElementById('kerk_convert_json');
             const textInput = document.getElementById('kerk_text_input');
             const extraInput = document.getElementById('kerk_extra_input');
+            const overlay = document.getElementById('kerk-progress-overlay');
+            const progressBar = document.getElementById('kerk-progress-bar');
+
+            function showOverlay() {
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    progressBar.style.width = '0';
+                    let progress = 0;
+                    overlay._interval = setInterval(() => {
+                        progress = Math.min(progress + Math.random() * 20, 90);
+                        progressBar.style.width = progress + '%';
+                    }, 400);
+                }
+            }
+            function hideOverlay() {
+                if (overlay) {
+                    overlay.style.display = 'none';
+                    if (overlay._interval) clearInterval(overlay._interval);
+                    progressBar.style.width = '100%';
+                }
+            }
 
             if (convertBtn && textInput && textbox) {
                 convertBtn.addEventListener('click', function() {
                     const text = textInput.value;
                     const extra = extraInput ? extraInput.value : '';
                     resultDiv.textContent = 'Converting...';
+                    showOverlay();
                     fetch(ajaxurl, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -161,6 +191,7 @@ class Kerk_Event_Importer {
                     })
                     .then(r => r.json())
                     .then(resp => {
+                        hideOverlay();
                         if (resp.success) {
                             textbox.value = resp.data;
                             resultDiv.textContent = '';
@@ -169,6 +200,7 @@ class Kerk_Event_Importer {
                         }
                     })
                     .catch(e => {
+                        hideOverlay();
                         resultDiv.textContent = 'Error: ' + e;
                     });
                 });
