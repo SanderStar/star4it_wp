@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/vendor/autoload.php';
 /*
 Plugin Name: Kerk Event Importer
 Description: Import and create Event Organiser events from JSON data.
-Version: 2.11
+Version: 2.23
 Author: Sander Star
 */
 
@@ -10,10 +11,54 @@ if (!defined('ABSPATH')) exit;
 
 class Kerk_Event_Importer {
     public function __construct() {
-            add_action('wp_ajax_kerk_convert_text_to_json', [$this, 'convert_text_to_json']);
+        // Dotenv laden verwijderd ivm compatibiliteit
+        add_action('wp_ajax_kerk_convert_text_to_json', [$this, 'convert_text_to_json']);
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_kerk_process_events', [$this, 'process_events']);
+        add_action('admin_menu', [$this, 'add_settings_menu']);
+        add_action('admin_init', [$this, 'register_settings']);
+    }
+    // Settings menu toevoegen
+    public function add_settings_menu() {
+        add_options_page(
+            'Kerk Event Importer Instellingen',
+            'Kerk Event Importer',
+            'manage_options',
+            'kerk-event-importer-settings',
+            [$this, 'settings_page']
+        );
+    }
+
+    public function register_settings() {
+        register_setting('kerk_event_importer_options', 'kerk_event_importer_ai_api_key');
+        add_settings_section(
+            'kerk_event_importer_main_section',
+            'AI API Instellingen',
+            null,
+            'kerk-event-importer-settings'
+        );
+        add_settings_field(
+            'kerk_event_importer_ai_api_key',
+            'AI API Key',
+            [$this, 'api_key_field_html'],
+            'kerk-event-importer-settings',
+            'kerk_event_importer_main_section'
+        );
+    }
+
+    public function api_key_field_html() {
+        $value = esc_attr(get_option('kerk_event_importer_ai_api_key', ''));
+        echo '<input type="text" name="kerk_event_importer_ai_api_key" value="' . $value . '" style="width: 400px;" />';
+    }
+
+    public function settings_page() {
+        echo '<div class="wrap"><h1>Kerk Event Importer Instellingen</h1>';
+        echo '<form method="post" action="options.php">';
+        settings_fields('kerk_event_importer_options');
+        do_settings_sections('kerk-event-importer-settings');
+        submit_button();
+        echo '</form></div>';
     }
 
     public function add_admin_menu() {
@@ -145,6 +190,36 @@ The title of the event is mentioned after the date time of the event.</textarea>
         if (!current_user_can('manage_options')) wp_send_json_error('Permission denied');
         $text = isset($_POST['text']) ? trim(stripslashes($_POST['text'])) : '';
         $extra = isset($_POST['extra']) ? trim(stripslashes($_POST['extra'])) : '';
+
+        // Haal API key uit WordPress options
+        $apiKey = get_option('kerk_event_importer_ai_api_key', '');
+        if (!$apiKey) {
+            wp_send_json_error('AI API key niet ingesteld. Ga naar Instellingen > Kerk Event Importer om de sleutel op te geven.');
+            return;
+        }
+
+        $prompt = $extra."\n\n".$text;
+
+        $payload = [
+            "contents" => [
+                ["parts" => [["text" => $prompt]]]
+            ]
+        ];
+
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey";
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // TODO: Remove the following line in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
         $lines = array_filter(array_map('trim', explode("\n", $text)));
         $events = [];
         foreach ($lines as $line) {
@@ -152,7 +227,9 @@ The title of the event is mentioned after the date time of the event.</textarea>
             if ($extra !== '') $event['ai_question'] = $extra;
             $events[] = $event;
         }
-        wp_send_json_success(json_encode($events, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        wp_send_json_success($response);
+        //TODO wp_send_json_success(json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
 
