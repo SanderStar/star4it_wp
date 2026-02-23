@@ -1,0 +1,32 @@
+msgid "Kerk Event Importer Instellingen"
+msgstr "Kerk Event Importer Instellingen"
+
+msgid "Kerk Event Importer"
+msgstr "Kerk Event Importer"
+
+msgid "AI API Instellingen"
+msgstr "AI API Instellingen"
+
+msgid "Convert Text to JSON"
+msgstr "Converteer tekst naar JSON"
+
+msgid "Paste or enter event text below. Optionally, enter an AI agent question to guide the conversion, then click 'Convert to JSON' to generate a JSON array for import."
+msgstr "Plak of voer hieronder evenementtekst in. Optioneel kun je een AI-agentvraag invullen om de conversie te sturen. Klik daarna op 'Converteer naar JSON' om een JSON-array te genereren voor import."
+
+msgid "Paste event text here..."
+msgstr "Plak hier de evenementtekst..."
+
+msgid "AI agent question (optional)"
+msgstr "AI-agentvraag (optioneel)"
+
+msgid "Convert to JSON"
+msgstr "Converteer naar JSON"
+
+msgid "Process Events"
+msgstr "Verwerk evenementen"
+
+msgid "Paste or enter the event data (JSON format) below and click 'Process Events' to create WordPress events."
+msgstr "Plak of voer hieronder de evenementdata (JSON-formaat) in en klik op 'Verwerk evenementen' om WordPress-evenementen aan te maken."
+
+msgid "Paste event data here..."
+msgstr "Plak hier de evenementdata..."

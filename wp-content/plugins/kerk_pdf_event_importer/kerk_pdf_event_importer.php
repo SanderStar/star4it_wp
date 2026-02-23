@@ -3,7 +3,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 /*
 Plugin Name: Kerk Event Importer
 Description: Import and create Event Organiser events from JSON data.
-Version: 2.26
+Version: 2.28
 Author: Sander Star
 */
 
@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) exit;
 class Kerk_Event_Importer {
     public function __construct() {
         // Dotenv laden verwijderd ivm compatibiliteit
+        add_action('init', [$this, 'load_textdomain']);
         add_action('wp_ajax_kerk_convert_text_to_json', [$this, 'convert_text_to_json']);
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
@@ -19,11 +20,15 @@ class Kerk_Event_Importer {
         add_action('admin_menu', [$this, 'add_settings_menu']);
         add_action('admin_init', [$this, 'register_settings']);
     }
+
+    public function load_textdomain() {
+        load_plugin_textdomain('kerk-pdf-event-importer', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    }
     // Settings menu toevoegen
     public function add_settings_menu() {
         add_options_page(
-            'Kerk Event Importer Instellingen',
-            'Kerk Event Importer',
+            __('Kerk Event Importer Instellingen', 'kerk-pdf-event-importer'),
+            __('Kerk Event Importer', 'kerk-pdf-event-importer'),
             'manage_options',
             'kerk-event-importer-settings',
             [$this, 'settings_page']
@@ -35,7 +40,7 @@ class Kerk_Event_Importer {
         register_setting('kerk_event_importer_options', 'kerk_event_importer_extra_default');
         add_settings_section(
             'kerk_event_importer_main_section',
-            'AI API Instellingen',
+            __('AI API Instellingen', 'kerk-pdf-event-importer'),
             null,
             'kerk-event-importer-settings'
         );
@@ -66,7 +71,7 @@ class Kerk_Event_Importer {
     }
 
     public function settings_page() {
-        echo '<div class="wrap"><h1>Kerk Event Importer Instellingen</h1>';
+        echo '<div class="wrap"><h1>' . esc_html(__('Kerk Event Importer Instellingen', 'kerk-pdf-event-importer')) . '</h1>';
         echo '<form method="post" action="options.php">';
         settings_fields('kerk_event_importer_options');
         do_settings_sections('kerk-event-importer-settings');
@@ -75,7 +80,13 @@ class Kerk_Event_Importer {
     }
 
     public function add_admin_menu() {
-        add_menu_page('Kerk Event Importer', 'Kerk Event Import', 'manage_options', 'kerk-event-import', [$this, 'admin_page']);
+        add_menu_page(
+            __('Kerk Event Importer', 'kerk-pdf-event-importer'),
+            __('Kerk Event Import', 'kerk-pdf-event-importer'),
+            'manage_options',
+            'kerk-event-import',
+            [$this, 'admin_page']
+        );
     }
 
     public function enqueue_scripts($hook) {
@@ -100,30 +111,30 @@ class Kerk_Event_Importer {
         .kerk-step .kerk-step-desc { color: #555; margin-bottom: 8px; }
         </style>
         <div class="wrap kerk-steps">
-            <h1>Kerk Event Importer</h1>
+            <h1><?php echo esc_html(__('Kerk Event Importer', 'kerk-pdf-event-importer')); ?></h1>
             <div class="kerk-step">
-                <div class="kerk-step-title">Convert Text to JSON</div>
-                <div class="kerk-step-desc">Paste or enter event text below. Optionally, enter an AI agent question to guide the conversion, then click 'Convert to JSON' to generate a JSON array for import.</div>
+                <div class="kerk-step-title"><?php echo esc_html(__('Convert Text to JSON', 'kerk-pdf-event-importer')); ?></div>
+                <div class="kerk-step-desc"><?php echo esc_html(__('Paste or enter event text below. Optionally, enter an AI agent question to guide the conversion, then click \'Convert to JSON\' to generate a JSON array for import.', 'kerk-pdf-event-importer')); ?></div>
                     <div class="kerk-step-actions">
-                        <textarea id="kerk_text_input" rows="6" placeholder="Paste event text here..." style="width:100%;margin-bottom:8px;"></textarea>
-                        <textarea id="kerk_extra_input" placeholder="AI agent question (optional)" style="width:100%;min-width:220px;" rows="6"><?php echo esc_textarea(get_option('kerk_event_importer_extra_default', "Convert the following text to json array with multiple events.\nEach event has a start and the end will be start plus 1 hour.\nEach line starting with the tekst Collecten can be ignored.\nThe title of the event is mentioned after the date time of the event.")); ?></textarea>
+                        <textarea id="kerk_text_input" rows="6" placeholder="<?php echo esc_attr(__('Paste event text here...', 'kerk-pdf-event-importer')); ?>" style="width:100%;margin-bottom:8px;"></textarea>
+                        <textarea id="kerk_extra_input" placeholder="<?php echo esc_attr(__('AI agent question (optional)', 'kerk-pdf-event-importer')); ?>" style="width:100%;min-width:220px;" rows="6"><?php echo esc_textarea(get_option('kerk_event_importer_extra_default', "Convert the following text to json array with multiple events.\nEach event has a start and the end will be start plus 1 hour.\nEach line starting with the tekst Collecten can be ignored.\nThe title of the event is mentioned after the date time of the event.")); ?></textarea>
                     </div>
-                <div class="kerk-step-actions">
-                    <button id="kerk_convert_json">Convert to JSON</button>
+                    <div class="kerk-step-actions">
+                        <button id="kerk_convert_json"><?php echo esc_html(__('Convert to JSON', 'kerk-pdf-event-importer')); ?></button>
+                    </div>
+                </div>
+                <div class="kerk-step">
+                    <div class="kerk-step-title"><?php echo esc_html(__('Process Events', 'kerk-pdf-event-importer')); ?></div>
+                    <div class="kerk-step-desc"><?php echo esc_html(__('Paste or enter the event data (JSON format) below and click \'Process Events\' to create WordPress events.', 'kerk-pdf-event-importer')); ?></div>
+                    <div class="kerk-step-actions">
+                        <textarea id="kerk_event_textbox" rows="10" placeholder="<?php echo esc_attr(__('Paste event data here...', 'kerk-pdf-event-importer')); ?>"></textarea>
+                    </div>
+                    <div class="kerk-step-actions">
+                        <button id="kerk_event_process"><?php echo esc_html(__('Process Events', 'kerk-pdf-event-importer')); ?></button>
+                    </div>
+                    <div id="kerk_event_result" style="margin-top:16px;"></div>
                 </div>
             </div>
-            <div class="kerk-step">
-                <div class="kerk-step-title">Process Events</div>
-                <div class="kerk-step-desc">Paste or enter the event data (JSON format) below and click 'Process Events' to create WordPress events.</div>
-                <div class="kerk-step-actions">
-                    <textarea id="kerk_event_textbox" rows="10" placeholder="Paste event data here..."></textarea>
-                </div>
-                <div class="kerk-step-actions">
-                    <button id="kerk_event_process">Process Events</button>
-                </div>
-                <div id="kerk_event_result" style="margin-top:16px;"></div>
-            </div>
-        </div>
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             const processBtn = document.getElementById('kerk_event_process');
