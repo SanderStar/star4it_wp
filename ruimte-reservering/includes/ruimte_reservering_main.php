@@ -1,4 +1,3 @@
-
 <?php
 
 /* -------------------------------------------------------
@@ -16,6 +15,7 @@ add_action('admin_menu', 'rr_admin_menu_pages');
 function rr_dashboard_page() {
     echo '<div class="wrap"><h1>Ruimte Reservering</h1>';
     echo '<p>Welkom bij het Ruimte Reservering beheer. Gebruik het menu om ruimtes, personen en reserveringen te beheren.</p>';
+    echo '<p>iCal voor ruimte reservering: https://[domein]/ruimte-reservering.ics</p>';
     echo '</div>';
 }
 
@@ -207,6 +207,42 @@ function rr_admin_reserveringen_form($id = 0) {
     echo '</form>';
 }
 
-// ... Plaats hier de rest van de plugin code uit ruimte_reservering.php ...
+// --- iCal output (verplaatst uit hoofdpluginbestand) ---
+function rr_add_ical_rewrite() {
+    add_rewrite_rule('ruimte-reservering\.ics$', 'index.php?rr_ical=1', 'top');
+}
+add_action('init', 'rr_add_ical_rewrite');
 
-// (Plak hier de volledige plugin code uit het oude ruimte_reservering.php bestand, behalve de plugin header)
+function rr_add_ical_query_var($vars) {
+    $vars[] = 'rr_ical';
+    return $vars;
+}
+add_filter('query_vars', 'rr_add_ical_query_var');
+
+function rr_ical_template() {
+    if (intval(get_query_var('rr_ical')) !== 1) return;
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: text/calendar; charset=utf-8');
+    header('Content-Disposition: inline; filename="ruimte-reservering.ics"');
+    echo "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Ruimte Reservering//NL\n";
+    $reserveringen = get_posts(['post_type' => 'reservering', 'numberposts' => -1]);
+    foreach ($reserveringen as $r) {
+        $ruimte = get_post_meta($r->ID, 'ruimte_id', true);
+        $persoon = get_post_meta($r->ID, 'persoon_id', true);
+        $start = get_post_meta($r->ID, 'start_dt', true);
+        $eind = get_post_meta($r->ID, 'eind_dt', true);
+        echo "BEGIN:VEVENT\n";
+        echo "UID:rr-" . $r->ID . "@example.com\n";
+        echo "DTSTART:" . gmdate('Ymd\THis\Z', strtotime($start)) . "\n";
+        echo "DTEND:" . gmdate('Ymd\THis\Z', strtotime($eind)) . "\n";
+        echo "SUMMARY:" . addslashes(get_the_title($ruimte)) . "\n";
+        echo "DESCRIPTION:Verantwoordelijke: " . addslashes(get_the_title($persoon)) . "\n";
+        echo "END:VEVENT\n";
+    }
+    echo "END:VCALENDAR";
+    exit;
+}
+add_action('template_redirect', 'rr_ical_template');
+

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Ruimte Reservering
 Description: Beheer ruimtes, personen en reserveringen met iCal export, custom beheerpagina's en conflict detectie.
-Version: 2.0.4
+Version: 2.0.10
 Author: Sander
 License: GPL2
 */
