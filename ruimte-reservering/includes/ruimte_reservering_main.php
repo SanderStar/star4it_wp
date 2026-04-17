@@ -4,13 +4,36 @@
    Custom Admin Pagina's
 ------------------------------------------------------- */
 
+
 function rr_admin_menu_pages() {
     add_menu_page('Ruimte Reservering', 'Ruimte Reservering', 'manage_options', 'rr_dashboard', 'rr_dashboard_page', 'dashicons-calendar-alt', 6);
     add_submenu_page('rr_dashboard', 'Ruimtes', 'Ruimtes', 'manage_options', 'rr_ruimtes', 'rr_admin_ruimtes_page');
     add_submenu_page('rr_dashboard', 'Personen', 'Personen', 'manage_options', 'rr_personen', 'rr_admin_personen_page');
     add_submenu_page('rr_dashboard', 'Reserveringen', 'Reserveringen', 'manage_options', 'rr_reserveringen', 'rr_admin_reserveringen_page');
+    add_submenu_page('rr_dashboard', 'Instellingen', 'Instellingen', 'manage_options', 'rr_settings', 'rr_admin_settings_page');
 }
 add_action('admin_menu', 'rr_admin_menu_pages');
+
+function rr_admin_settings_page() {
+    echo '<div class="wrap"><h1>Instellingen</h1>';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rr_goedkeurders'])) {
+        $emails = sanitize_text_field($_POST['rr_goedkeurders']);
+        update_option('rr_goedkeurders', $emails);
+        echo '<div class="updated notice"><p>Goedkeurders opgeslagen.</p></div>';
+    }
+    $emails = get_option('rr_goedkeurders', '');
+    $back_url = 'admin.php?page=rr_dashboard';
+    echo '<form method="post">';
+    echo '<p><label>Goedkeurders (meerdere e-mailadressen, gescheiden door een komma):<br>';
+    echo '<input type="text" name="rr_goedkeurders" value="' . esc_attr($emails) . '" style="width: 400px; max-width:100%;" placeholder="mail1@example.com, mail2@example.com">';
+    echo '</label></p>';
+    echo '<p>';
+    echo '<button type="submit" class="button button-primary">Opslaan</button> ';
+    echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
+    echo '</p>';
+    echo '</form>';
+    echo '</div>';
+}
 
 function rr_dashboard_page() {
     echo '<div class="wrap"><h1>Ruimte Reservering</h1>';
