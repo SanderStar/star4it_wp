@@ -253,21 +253,22 @@ function rr_admin_reserveringen_form($id = 0) {
     $ruimtes = get_posts(['post_type'=>'ruimte','numberposts'=>-1]);
     $personen = get_posts(['post_type'=>'persoon','numberposts'=>-1]);
     echo '<form method="post">';
-    echo '<p><label>Ruimtes:<br><select name="rr_ruimte_ids[]" multiple size="4" required>';
+    $veld_style = 'style="width: 320px; max-width: 100%;"';
+    echo '<p><label>Ruimtes:<br><select name="rr_ruimte_ids[]" multiple size="4" required ' . $veld_style . '>';
     foreach ($ruimtes as $r) {
         $sel = in_array($r->ID, $ruimte_ids) ? 'selected' : '';
         echo '<option value="' . $r->ID . '" ' . $sel . '>' . esc_html($r->post_title) . '</option>';
     }
     echo '</select><br><small>Houd Ctrl (Windows) of Cmd (Mac) ingedrukt om meerdere ruimtes te selecteren.</small></label></p>';
-    echo '<p><label>Persoon:<br><select name="rr_persoon_id" required>';
+    echo '<p><label>Persoon:<br><select name="rr_persoon_id" required ' . $veld_style . '>';
     foreach ($personen as $p) {
         $sel = $persoon_id == $p->ID ? 'selected' : '';
         echo '<option value="' . $p->ID . '" ' . $sel . '>' . esc_html($p->post_title) . '</option>';
     }
     echo '</select></label></p>';
-    echo '<p><label>Start datum/tijd:<br><input type="datetime-local" name="rr_start" value="' . esc_attr($start) . '" required></label></p>';
-    echo '<p><label>Eind datum/tijd:<br><input type="datetime-local" name="rr_eind" value="' . esc_attr($eind) . '" required></label></p>';
-    echo '<p><label>Aantal personen:<br><input type="number" name="rr_aantal_personen" value="' . esc_attr($aantal_personen) . '" min="1" step="1" required></label></p>';
+    echo '<p><label>Start datum/tijd:<br><input type="datetime-local" name="rr_start" value="' . esc_attr($start) . '" required ' . $veld_style . '></label></p>';
+    echo '<p><label>Eind datum/tijd:<br><input type="datetime-local" name="rr_eind" value="' . esc_attr($eind) . '" required ' . $veld_style . '></label></p>';
+    echo '<p><label>Aantal personen:<br><input type="number" name="rr_aantal_personen" value="' . esc_attr($aantal_personen) . '" min="1" step="1" required ' . $veld_style . '></label></p>';
     $checked = $goedgekeurd == '1' ? 'checked' : '';
     echo '<p><label><input type="checkbox" name="rr_goedgekeurd" value="1" ' . $checked . '> Goedgekeurd</label></p>';
     echo '<p>';
