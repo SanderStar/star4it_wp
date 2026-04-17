@@ -268,6 +268,30 @@ function rr_admin_reserveringen_form($id = 0) {
                     update_post_meta($rid, 'aantal_personen', $aantal_personen);
                     update_post_meta($rid, 'goedgekeurd', $goedgekeurd);
                     echo '<div class="updated notice"><p>Reservering toegevoegd.</p></div>';
+
+                    // Mail naar goedkeurders
+                    $emails = get_option('rr_goedkeurders', '');
+                    if (!empty($emails)) {
+                        $email_arr = array_map('trim', explode(',', $emails));
+                        $ruimte_namen = array();
+                        foreach ($ruimte_ids as $rid_) {
+                            $ruimte_namen[] = get_the_title($rid_);
+                        }
+                        $persoon_naam = get_the_title($persoon_id);
+                        $onderwerp = 'Nieuwe reservering ter goedkeuring';
+                        $bericht = "Er is een nieuwe reservering aangemaakt:\n\n";
+                        $bericht .= "Ruimte(s): " . implode(', ', $ruimte_namen) . "\n";
+                        $bericht .= "Persoon: " . $persoon_naam . "\n";
+                        $bericht .= "Start: " . $start . "\n";
+                        $bericht .= "Eind: " . $eind . "\n";
+                        $bericht .= "Aantal personen: " . $aantal_personen . "\n";
+                        $bericht .= "Goedgekeurd: " . ($goedgekeurd == '1' ? 'Ja' : 'Nee') . "\n";
+                        foreach ($email_arr as $to) {
+                            if (is_email($to)) {
+                                wp_mail($to, $onderwerp, $bericht);
+                            }
+                        }
+                    }
                 }
             }
         }
