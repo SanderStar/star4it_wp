@@ -279,13 +279,15 @@ function rr_admin_reserveringen_form($id = 0) {
                         }
                         $persoon_naam = get_the_title($persoon_id);
                         $onderwerp = 'Nieuwe reservering ter goedkeuring';
+                        $edit_url = admin_url('admin.php?page=rr_reserveringen&action=edit&id=' . $rid);
                         $bericht = "Er is een nieuwe reservering aangemaakt:\n\n";
                         $bericht .= "Ruimte(s): " . implode(', ', $ruimte_namen) . "\n";
                         $bericht .= "Persoon: " . $persoon_naam . "\n";
                         $bericht .= "Start: " . $start . "\n";
                         $bericht .= "Eind: " . $eind . "\n";
                         $bericht .= "Aantal personen: " . $aantal_personen . "\n";
-                        $bericht .= "Goedgekeurd: " . ($goedgekeurd == '1' ? 'Ja' : 'Nee') . "\n";
+                        $bericht .= "Goedgekeurd: " . ($goedgekeurd == '1' ? 'Ja' : 'Nee') . "\n\n";
+                        $bericht .= "Direct goedkeuren of bewerken: " . $edit_url . "\n";
                         foreach ($email_arr as $to) {
                             if (is_email($to)) {
                                 wp_mail($to, $onderwerp, $bericht);
