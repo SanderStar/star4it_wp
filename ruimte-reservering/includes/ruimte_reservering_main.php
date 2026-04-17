@@ -197,27 +197,55 @@ function rr_admin_reserveringen_form($id = 0) {
         $eind = sanitize_text_field($_POST['rr_eind']);
         $aantal_personen = intval($_POST['rr_aantal_personen']);
         $goedgekeurd = isset($_POST['rr_goedgekeurd']) ? '1' : '0';
-        $conflict = rr_reservering_heeft_conflict($ruimte_ids, $start, $eind, $id ? $id : null);
-        if ($conflict) {
-            echo '<div class="error notice"><p>Conflict: De geselecteerde ruimte(s) zijn al gereserveerd in deze periode (' . esc_html(implode(', ', array_map('get_the_title', $conflict->ID ? get_post_meta($conflict->ID, 'ruimte_ids', true) : array()))) . ').</p></div>';
+
+        $fout = '';
+        if (empty($ruimte_ids)) {
+            $fout .= '<li>Kies minimaal één ruimte.</li>';
+        }
+        if (empty($persoon_id)) {
+            $fout .= '<li>Kies een persoon.</li>';
+        }
+        if (empty($start)) {
+            $fout .= '<li>Vul een start datum/tijd in.</li>';
+        }
+        if (empty($eind)) {
+            $fout .= '<li>Vul een eind datum/tijd in.</li>';
+        }
+        if (!empty($start) && !empty($eind)) {
+            $start_ts = strtotime($start);
+            $eind_ts = strtotime($eind);
+            if ($start_ts === false || $eind_ts === false) {
+                $fout .= '<li>Ongeldige datum/tijd.</li>';
+            } elseif ($start_ts >= $eind_ts) {
+                $fout .= '<li>De startdatum/tijd moet vóór de einddatum/tijd liggen.</li>';
+            }
+        }
+
+        if ($fout) {
+            echo '<div class="error notice"><ul>' . $fout . '</ul></div>';
         } else {
-            if ($id) {
-                update_post_meta($id, 'ruimte_ids', $ruimte_ids);
-                update_post_meta($id, 'persoon_id', $persoon_id);
-                update_post_meta($id, 'start_dt', $start);
-                update_post_meta($id, 'eind_dt', $eind);
-                update_post_meta($id, 'aantal_personen', $aantal_personen);
-                update_post_meta($id, 'goedgekeurd', $goedgekeurd);
-                echo '<div class="updated notice"><p>Reservering bijgewerkt.</p></div>';
+            $conflict = rr_reservering_heeft_conflict($ruimte_ids, $start, $eind, $id ? $id : null);
+            if ($conflict) {
+                echo '<div class="error notice"><p>Conflict: De geselecteerde ruimte(s) zijn al gereserveerd in deze periode (' . esc_html(implode(', ', array_map('get_the_title', $conflict->ID ? get_post_meta($conflict->ID, 'ruimte_ids', true) : array()))) . ').</p></div>';
             } else {
-                $rid = wp_insert_post(['post_type'=>'reservering','post_title'=>'Reservering','post_status'=>'publish']);
-                update_post_meta($rid, 'ruimte_ids', $ruimte_ids);
-                update_post_meta($rid, 'persoon_id', $persoon_id);
-                update_post_meta($rid, 'start_dt', $start);
-                update_post_meta($rid, 'eind_dt', $eind);
-                update_post_meta($rid, 'aantal_personen', $aantal_personen);
-                update_post_meta($rid, 'goedgekeurd', $goedgekeurd);
-                echo '<div class="updated notice"><p>Reservering toegevoegd.</p></div>';
+                if ($id) {
+                    update_post_meta($id, 'ruimte_ids', $ruimte_ids);
+                    update_post_meta($id, 'persoon_id', $persoon_id);
+                    update_post_meta($id, 'start_dt', $start);
+                    update_post_meta($id, 'eind_dt', $eind);
+                    update_post_meta($id, 'aantal_personen', $aantal_personen);
+                    update_post_meta($id, 'goedgekeurd', $goedgekeurd);
+                    echo '<div class="updated notice"><p>Reservering bijgewerkt.</p></div>';
+                } else {
+                    $rid = wp_insert_post(['post_type'=>'reservering','post_title'=>'Reservering','post_status'=>'publish']);
+                    update_post_meta($rid, 'ruimte_ids', $ruimte_ids);
+                    update_post_meta($rid, 'persoon_id', $persoon_id);
+                    update_post_meta($rid, 'start_dt', $start);
+                    update_post_meta($rid, 'eind_dt', $eind);
+                    update_post_meta($rid, 'aantal_personen', $aantal_personen);
+                    update_post_meta($rid, 'goedgekeurd', $goedgekeurd);
+                    echo '<div class="updated notice"><p>Reservering toegevoegd.</p></div>';
+                }
             }
         }
     }
