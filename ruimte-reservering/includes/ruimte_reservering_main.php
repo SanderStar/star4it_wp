@@ -38,7 +38,19 @@ function rr_admin_settings_page() {
 function rr_dashboard_page() {
     echo '<div class="wrap"><h1>Ruimte Reservering</h1>';
     echo '<p>Welkom bij het Ruimte Reservering beheer. Gebruik het menu om ruimtes, personen en reserveringen te beheren.</p>';
-    echo '<p>iCal voor ruimte reservering: https://[domein]/ruimte-reservering.ics</p>';
+    echo '<h2>Documentatie</h2>';
+    echo '<ul>';
+    echo '<li><strong>Ruimtes:</strong> Maak ruimtes aan die gereserveerd kunnen worden.</li>';
+    echo '<li><strong>Personen:</strong> Voeg personen toe die reserveringen kunnen maken.</li>';
+    echo '<li><strong>Reserveringen:</strong> Koppel een of meer ruimtes aan een persoon voor een bepaalde periode. Je kunt het aantal personen en goedkeuring vastleggen.</li>';
+    echo '<li><strong>Goedkeurders:</strong> Stel e-mailadressen in onder Instellingen. Zij ontvangen een e-mail bij nieuwe reserveringen en kunnen deze goedkeuren.</li>';
+    echo '<li><strong>iCal export:</strong> Alle goedgekeurde reserveringen zijn te exporteren via: <br><code>https://[domein]/ruimte-reservering.ics</code></li>';
+    echo '<li><strong>Overzicht:</strong> In het reserveringenoverzicht zie je aanmaakdatum, goedkeuringsstatus en goedkeuringsdatum.</li>';
+    echo '</ul>';
+    echo '<h2>iCal uitleg</h2>';
+    echo '<p>Gebruik de iCal-link om reserveringen te importeren in je agenda. Alle reserveringen worden getoond, ongeacht goedkeuring.</p>';
+    echo '<p>Let op: de link is openbaar, deel deze alleen met bevoegden.</p>';
+    echo '<p>iCal voor ruimte reservering: <code>https://[domein]/ruimte-reservering.ics</code></p>';
     echo '</div>';
 }
 
@@ -267,10 +279,12 @@ function rr_admin_reserveringen_form($id = 0) {
                     update_post_meta($id, 'aantal_personen', $aantal_personen);
                     update_post_meta($id, 'goedgekeurd', $goedgekeurd_nieuw);
                     // Goedkeuringsdatum opslaan of wissen
-                    $oude_waarde = get_post_meta($id, 'goedgekeurd', true);
-                    if ($goedgekeurd_nieuw === '1' && $oude_waarde !== '1') {
-                        update_post_meta($id, 'goedgekeurd_dt', current_time('mysql'));
-                    } elseif ($goedgekeurd_nieuw !== '1') {
+                    $bestaande_dt = get_post_meta($id, 'goedgekeurd_dt', true);
+                    if ($goedgekeurd_nieuw === '1') {
+                        if (empty($bestaande_dt)) {
+                            update_post_meta($id, 'goedgekeurd_dt', current_time('mysql'));
+                        }
+                    } else {
                         delete_post_meta($id, 'goedgekeurd_dt');
                     }
                     $goedgekeurd = $goedgekeurd_nieuw;
