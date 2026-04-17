@@ -62,9 +62,13 @@ function rr_admin_ruimtes_form($id = 0) {
             echo '<div class="updated notice"><p>Ruimte toegevoegd.</p></div>';
         }
     }
+    $back_url = 'admin.php?page=rr_ruimtes';
     echo '<form method="post">';
     echo '<p><label>Naam:<br><input type="text" name="rr_naam" value="' . esc_attr($naam) . '" required></label></p>';
-    echo '<p><button type="submit" class="button button-primary">Opslaan</button></p>';
+    echo '<p>';
+    echo '<button type="submit" class="button button-primary">Opslaan</button> ';
+    echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
+    echo '</p>';
     echo '</form>';
 }
 
@@ -117,10 +121,14 @@ function rr_admin_personen_form($id = 0) {
             echo '<div class="updated notice"><p>Persoon toegevoegd.</p></div>';
         }
     }
+    $back_url = 'admin.php?page=rr_personen';
     echo '<form method="post">';
     echo '<p><label>Naam:<br><input type="text" name="rr_naam" value="' . esc_attr($naam) . '" required></label></p>';
     echo '<p><label>Telefoonnummer:<br><input type="text" name="rr_telefoon" value="' . esc_attr($tel) . '"></label></p>';
-    echo '<p><button type="submit" class="button button-primary">Opslaan</button></p>';
+    echo '<p>';
+    echo '<button type="submit" class="button button-primary">Opslaan</button> ';
+    echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
+    echo '</p>';
     echo '</form>';
 }
 
@@ -170,6 +178,7 @@ function rr_admin_reserveringen_form($id = 0) {
     $eind = '';
     $aantal_personen = '';
     $goedgekeurd = '';
+    $conflict = false;
     if ($id) {
         $ruimte_ids = get_post_meta($id, 'ruimte_ids', true);
         if (!is_array($ruimte_ids)) { $ruimte_ids = $ruimte_ids ? array($ruimte_ids) : array(); }
@@ -188,25 +197,31 @@ function rr_admin_reserveringen_form($id = 0) {
         $eind = sanitize_text_field($_POST['rr_eind']);
         $aantal_personen = intval($_POST['rr_aantal_personen']);
         $goedgekeurd = isset($_POST['rr_goedgekeurd']) ? '1' : '0';
-        if ($id) {
-            update_post_meta($id, 'ruimte_ids', $ruimte_ids);
-            update_post_meta($id, 'persoon_id', $persoon_id);
-            update_post_meta($id, 'start_dt', $start);
-            update_post_meta($id, 'eind_dt', $eind);
-            update_post_meta($id, 'aantal_personen', $aantal_personen);
-            update_post_meta($id, 'goedgekeurd', $goedgekeurd);
-            echo '<div class="updated notice"><p>Reservering bijgewerkt.</p></div>';
+        $conflict = rr_reservering_heeft_conflict($ruimte_ids, $start, $eind, $id ? $id : null);
+        if ($conflict) {
+            echo '<div class="error notice"><p>Conflict: De geselecteerde ruimte(s) zijn al gereserveerd in deze periode (' . esc_html(implode(', ', array_map('get_the_title', $conflict->ID ? get_post_meta($conflict->ID, 'ruimte_ids', true) : array()))) . ').</p></div>';
         } else {
-            $rid = wp_insert_post(['post_type'=>'reservering','post_title'=>'Reservering','post_status'=>'publish']);
-            update_post_meta($rid, 'ruimte_ids', $ruimte_ids);
-            update_post_meta($rid, 'persoon_id', $persoon_id);
-            update_post_meta($rid, 'start_dt', $start);
-            update_post_meta($rid, 'eind_dt', $eind);
-            update_post_meta($rid, 'aantal_personen', $aantal_personen);
-            update_post_meta($rid, 'goedgekeurd', $goedgekeurd);
-            echo '<div class="updated notice"><p>Reservering toegevoegd.</p></div>';
+            if ($id) {
+                update_post_meta($id, 'ruimte_ids', $ruimte_ids);
+                update_post_meta($id, 'persoon_id', $persoon_id);
+                update_post_meta($id, 'start_dt', $start);
+                update_post_meta($id, 'eind_dt', $eind);
+                update_post_meta($id, 'aantal_personen', $aantal_personen);
+                update_post_meta($id, 'goedgekeurd', $goedgekeurd);
+                echo '<div class="updated notice"><p>Reservering bijgewerkt.</p></div>';
+            } else {
+                $rid = wp_insert_post(['post_type'=>'reservering','post_title'=>'Reservering','post_status'=>'publish']);
+                update_post_meta($rid, 'ruimte_ids', $ruimte_ids);
+                update_post_meta($rid, 'persoon_id', $persoon_id);
+                update_post_meta($rid, 'start_dt', $start);
+                update_post_meta($rid, 'eind_dt', $eind);
+                update_post_meta($rid, 'aantal_personen', $aantal_personen);
+                update_post_meta($rid, 'goedgekeurd', $goedgekeurd);
+                echo '<div class="updated notice"><p>Reservering toegevoegd.</p></div>';
+            }
         }
     }
+    $back_url = 'admin.php?page=rr_reserveringen';
     $ruimtes = get_posts(['post_type'=>'ruimte','numberposts'=>-1]);
     $personen = get_posts(['post_type'=>'persoon','numberposts'=>-1]);
     echo '<form method="post">';
@@ -227,7 +242,10 @@ function rr_admin_reserveringen_form($id = 0) {
     echo '<p><label>Aantal personen:<br><input type="number" name="rr_aantal_personen" value="' . esc_attr($aantal_personen) . '" min="1" step="1" required></label></p>';
     $checked = $goedgekeurd == '1' ? 'checked' : '';
     echo '<p><label><input type="checkbox" name="rr_goedgekeurd" value="1" ' . $checked . '> Goedgekeurd</label></p>';
-    echo '<p><button type="submit" class="button button-primary">Opslaan</button></p>';
+    echo '<p>';
+    echo '<button type="submit" class="button button-primary">Opslaan</button> ';
+    echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
+    echo '</p>';
     echo '</form>';
 }
 
@@ -277,4 +295,27 @@ function rr_ical_template() {
     exit;
 }
 add_action('template_redirect', 'rr_ical_template');
+
+function rr_reservering_heeft_conflict($ruimte_ids, $start, $eind, $exclude_id = null) {
+    if (empty($ruimte_ids) || !$start || !$eind) return false;
+    $args = [
+        'post_type' => 'reservering',
+        'numberposts' => -1,
+    ];
+    $reserveringen = get_posts($args);
+    foreach ($reserveringen as $r) {
+        if ($exclude_id && $r->ID == $exclude_id) continue;
+        $r_ids = get_post_meta($r->ID, 'ruimte_ids', true);
+        if (!is_array($r_ids)) { $r_ids = $r_ids ? array($r_ids) : array(); }
+        if (count(array_intersect($ruimte_ids, $r_ids)) === 0) continue; // geen overlappende ruimte
+        $r_start = get_post_meta($r->ID, 'start_dt', true);
+        $r_eind = get_post_meta($r->ID, 'eind_dt', true);
+        if (!$r_start || !$r_eind) continue;
+        // Controleer overlap: (start < r_eind) && (eind > r_start)
+        if (strtotime($start) < strtotime($r_eind) && strtotime($eind) > strtotime($r_start)) {
+            return $r;
+        }
+    }
+    return false;
+}
 
