@@ -186,7 +186,7 @@ function rr_admin_reserveringen_page() {
         echo '<div class="updated notice"><p>Reservering verwijderd.</p></div>';
     }
     $reserveringen = get_posts(['post_type'=>'reservering','numberposts'=>-1]);
-    echo '<table class="widefat"><thead><tr><th>Ruimtes</th><th>Persoon</th><th>Start</th><th>Eind</th><th>Aantal personen</th><th>Aangemaakt op</th><th>Goedgekeurd</th><th>Goedgekeurd op</th><th>Acties</th></tr></thead><tbody>';
+    echo '<table class="widefat"><thead><tr><th>Titel</th><th>Ruimtes</th><th>Persoon</th><th>Start</th><th>Eind</th><th>Aantal personen</th><th>Aangemaakt op</th><th>Goedgekeurd</th><th>Goedgekeurd op</th><th>Acties</th></tr></thead><tbody>';
     foreach ($reserveringen as $r) {
         $ruimte_ids = get_post_meta($r->ID, 'ruimte_ids', true);
         if (!is_array($ruimte_ids)) { $ruimte_ids = $ruimte_ids ? array($ruimte_ids) : array(); }
@@ -204,13 +204,14 @@ function rr_admin_reserveringen_page() {
         $goedgekeurd_dt = get_post_meta($r->ID, 'goedgekeurd_dt', true);
         $aanmaak_dt_str = $aanmaak_dt ? esc_html(date_i18n('d-m-Y H:i', strtotime($aanmaak_dt))) : '';
         $goedgekeurd_dt_str = $goedgekeurd_dt ? esc_html(date_i18n('d-m-Y H:i', strtotime($goedgekeurd_dt))) : '';
-        echo '<tr><td>' . implode(', ', $ruimte_namen) . '</td><td>' . esc_html(get_the_title($persoon)) . '</td><td>' . esc_html($start) . '</td><td>' . esc_html($eind) . '</td><td>' . esc_html($aantal_personen) . '</td><td>' . $aanmaak_dt_str . '</td><td>' . $goedgekeurd_label . '</td><td>' . $goedgekeurd_dt_str . '</td>';
+        echo '<tr><td>' . esc_html($r->post_title) . '</td><td>' . implode(', ', $ruimte_namen) . '</td><td>' . esc_html(get_the_title($persoon)) . '</td><td>' . esc_html($start) . '</td><td>' . esc_html($eind) . '</td><td>' . esc_html($aantal_personen) . '</td><td>' . $aanmaak_dt_str . '</td><td>' . $goedgekeurd_label . '</td><td>' . $goedgekeurd_dt_str . '</td>';
         echo '<td><a href="admin.php?page=rr_reserveringen&action=edit&id=' . $r->ID . '">Bewerken</a> | <a href="admin.php?page=rr_reserveringen&action=delete&id=' . $r->ID . '" onclick="return confirm(\'Weet je het zeker?\')">Verwijderen</a></td></tr>';
     }
     echo '</tbody></table></div>';
 }
 
 function rr_admin_reserveringen_form($id = 0) {
+    $titel = '';
     $ruimte_ids = array();
     $persoon_id = '';
     $start = '';
@@ -219,6 +220,8 @@ function rr_admin_reserveringen_form($id = 0) {
     $goedgekeurd = '';
     $conflict = false;
     if ($id) {
+        $post = get_post($id);
+        $titel = $post ? $post->post_title : '';
         $ruimte_ids = get_post_meta($id, 'ruimte_ids', true);
         if (!is_array($ruimte_ids)) { $ruimte_ids = $ruimte_ids ? array($ruimte_ids) : array(); }
         $persoon_id = get_post_meta($id, 'persoon_id', true);
@@ -234,6 +237,7 @@ function rr_admin_reserveringen_form($id = 0) {
         $goedgekeurd_dt = '';
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rr_ruimte_ids'])) {
+        $titel = isset($_POST['rr_titel']) ? sanitize_text_field($_POST['rr_titel']) : '';
         $ruimte_ids = array_map('intval', $_POST['rr_ruimte_ids']);
         $persoon_id = intval($_POST['rr_persoon_id']);
         $start = sanitize_text_field($_POST['rr_start']);
@@ -242,6 +246,9 @@ function rr_admin_reserveringen_form($id = 0) {
         $goedgekeurd_nieuw = isset($_POST['rr_goedgekeurd']) ? '1' : '0';
 
         $fout = '';
+        if (empty($titel)) {
+            $fout .= '<li>Vul een titel in.</li>';
+        }
         if (empty($ruimte_ids)) {
             $fout .= '<li>Kies minimaal één ruimte.</li>';
         }
@@ -272,6 +279,7 @@ function rr_admin_reserveringen_form($id = 0) {
                 echo '<div class="error notice"><p>Conflict: De geselecteerde ruimte(s) zijn al gereserveerd in deze periode (' . esc_html(implode(', ', array_map('get_the_title', $conflict->ID ? get_post_meta($conflict->ID, 'ruimte_ids', true) : array()))) . ').</p></div>';
             } else {
                 if ($id) {
+                    wp_update_post(['ID' => $id, 'post_title' => $titel]);
                     update_post_meta($id, 'ruimte_ids', $ruimte_ids);
                     update_post_meta($id, 'persoon_id', $persoon_id);
                     update_post_meta($id, 'start_dt', $start);
@@ -290,7 +298,7 @@ function rr_admin_reserveringen_form($id = 0) {
                     $goedgekeurd = $goedgekeurd_nieuw;
                     echo '<div class="updated notice"><p>Reservering bijgewerkt.</p></div>';
                 } else {
-                    $rid = wp_insert_post(['post_type'=>'reservering','post_title'=>'Reservering','post_status'=>'publish']);
+                    $rid = wp_insert_post(['post_type'=>'reservering','post_title'=>$titel,'post_status'=>'publish']);
                     update_post_meta($rid, 'ruimte_ids', $ruimte_ids);
                     update_post_meta($rid, 'persoon_id', $persoon_id);
                     update_post_meta($rid, 'start_dt', $start);
@@ -312,6 +320,7 @@ function rr_admin_reserveringen_form($id = 0) {
                         $onderwerp = 'Nieuwe reservering ter goedkeuring';
                         $edit_url = admin_url('admin.php?page=rr_reserveringen&action=edit&id=' . $rid);
                         $bericht = "Er is een nieuwe reservering aangemaakt:\n\n";
+                        $bericht .= "Titel: " . $titel . "\n";
                         $bericht .= "Ruimte(s): " . implode(', ', $ruimte_namen) . "\n";
                         $bericht .= "Persoon: " . $persoon_naam . "\n";
                         $bericht .= "Start: " . $start . "\n";
@@ -340,6 +349,7 @@ function rr_admin_reserveringen_form($id = 0) {
         echo '<p><strong>Goedgekeurd op:</strong> ' . esc_html(date_i18n('d-m-Y H:i', strtotime($goedgekeurd_dt))) . '</p>';
     }
     $veld_style = 'style="width: 320px; max-width: 100%;"';
+    echo '<p><label>Titel:<br><input type="text" name="rr_titel" value="' . esc_attr($titel) . '" required ' . $veld_style . '></label></p>';
     echo '<p><label>Ruimtes:<br><select name="rr_ruimte_ids[]" multiple size="4" required ' . $veld_style . '>';
     foreach ($ruimtes as $r) {
         $sel = in_array($r->ID, $ruimte_ids) ? 'selected' : '';
@@ -402,8 +412,8 @@ function rr_ical_template() {
         echo "UID:rr-" . $r->ID . "@example.com\n";
         echo "DTSTART:" . gmdate('Ymd\\THis\\Z', strtotime($start)) . "\n";
         echo "DTEND:" . gmdate('Ymd\\THis\\Z', strtotime($eind)) . "\n";
-        echo "SUMMARY:" . addslashes(implode(', ', $ruimte_namen)) . "\n";
-        echo "DESCRIPTION:Verantwoordelijke: " . addslashes(get_the_title($persoon)) . "\\nAantal personen: " . addslashes($aantal_personen) . "\\nGoedgekeurd: " . $goedgekeurd_label . "\n";
+        echo "SUMMARY:" . addslashes($r->post_title) . "\n";
+        echo "DESCRIPTION:Ruimte(s): " . addslashes(implode(', ', $ruimte_namen)) . "\\nVerantwoordelijke: " . addslashes(get_the_title($persoon)) . "\\nAantal personen: " . addslashes($aantal_personen) . "\\nGoedgekeurd: " . $goedgekeurd_label . "\n";
         echo "END:VEVENT\n";
     }
     echo "END:VCALENDAR";
