@@ -394,6 +394,7 @@ function rr_ical_template() {
     header('Content-Type: text/calendar; charset=utf-8');
     header('Content-Disposition: inline; filename="ruimte-reservering.ics"');
     echo "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Ruimte Reservering//NL\n";
+    $vandaag = date_i18n('Y-m-d', current_time('timestamp'));
     $reserveringen = get_posts(['post_type' => 'reservering', 'numberposts' => -1]);
     foreach ($reserveringen as $r) {
         $ruimte_ids = get_post_meta($r->ID, 'ruimte_ids', true);
@@ -405,6 +406,9 @@ function rr_ical_template() {
         $persoon = get_post_meta($r->ID, 'persoon_id', true);
         $start = get_post_meta($r->ID, 'start_dt', true);
         $eind = get_post_meta($r->ID, 'eind_dt', true);
+        if (!$start || date('Y-m-d', strtotime($start)) < $vandaag) {
+            continue;
+        }
         $aantal_personen = get_post_meta($r->ID, 'aantal_personen', true);
         $goedgekeurd = get_post_meta($r->ID, 'goedgekeurd', true);
         $goedgekeurd_label = $goedgekeurd == '1' ? 'Ja' : 'Nee';
