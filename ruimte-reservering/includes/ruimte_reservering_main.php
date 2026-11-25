@@ -24,9 +24,11 @@ function rr_admin_settings_page() {
     $emails = get_option('rr_goedkeurders', '');
     $back_url = 'admin.php?page=rr_dashboard';
     echo '<form method="post">';
-    echo '<p><label>Goedkeurders (meerdere e-mailadressen, gescheiden door een komma):<br>';
-    echo '<input type="text" name="rr_goedkeurders" value="' . esc_attr($emails) . '" style="width: 400px; max-width:100%;" placeholder="mail1@example.com, mail2@example.com">';
-    echo '</label></p>';
+    echo '<table class="form-table"><tbody><tr>';
+    echo '<th scope="row"><label for="rr_goedkeurders">Goedkeurders</label></th><td>';
+    echo '<input type="text" id="rr_goedkeurders" name="rr_goedkeurders" value="' . esc_attr($emails) . '" style="width: 400px; max-width:100%;" placeholder="mail1@example.com, mail2@example.com" aria-describedby="rr_goedkeurders_help">';
+    echo '<p class="description" id="rr_goedkeurders_help">Meerdere e-mailadressen, gescheiden door een komma.</p>';
+    echo '</td></tr></tbody></table>';
     echo '<p>';
     echo '<button type="submit" class="button button-primary">Opslaan</button> ';
     echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
@@ -99,7 +101,7 @@ function rr_admin_ruimtes_form($id = 0) {
     }
     $back_url = 'admin.php?page=rr_ruimtes';
     echo '<form method="post">';
-    echo '<p><label>Naam:<br><input type="text" name="rr_naam" value="' . esc_attr($naam) . '" required></label></p>';
+    echo '<table class="form-table"><tbody><tr><th scope="row"><label for="rr_naam">Naam</label></th><td><input type="text" id="rr_naam" name="rr_naam" value="' . esc_attr($naam) . '" required></td></tr></tbody></table>';
     echo '<p>';
     echo '<button type="submit" class="button button-primary">Opslaan</button> ';
     echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
@@ -158,8 +160,10 @@ function rr_admin_personen_form($id = 0) {
     }
     $back_url = 'admin.php?page=rr_personen';
     echo '<form method="post">';
-    echo '<p><label>Naam:<br><input type="text" name="rr_naam" value="' . esc_attr($naam) . '" required></label></p>';
-    echo '<p><label>Telefoonnummer:<br><input type="text" name="rr_telefoon" value="' . esc_attr($tel) . '"></label></p>';
+    echo '<table class="form-table"><tbody>';
+    echo '<tr><th scope="row"><label for="rr_naam">Naam</label></th><td><input type="text" id="rr_naam" name="rr_naam" value="' . esc_attr($naam) . '" required></td></tr>';
+    echo '<tr><th scope="row"><label for="rr_telefoon">Telefoonnummer</label></th><td><input type="text" id="rr_telefoon" name="rr_telefoon" value="' . esc_attr($tel) . '"></td></tr>';
+    echo '</tbody></table>';
     echo '<p>';
     echo '<button type="submit" class="button button-primary">Opslaan</button> ';
     echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
@@ -354,25 +358,27 @@ function rr_admin_reserveringen_form($id = 0) {
         echo '<p><strong>Goedgekeurd op:</strong> ' . esc_html(date_i18n('d-m-Y H:i', strtotime($goedgekeurd_dt))) . '</p>';
     }
     $veld_style = 'style="width: 320px; max-width: 100%;"';
-    echo '<p><label>Titel:<br><input type="text" name="rr_titel" value="' . esc_attr($titel) . '" required ' . $veld_style . '></label></p>';
-    echo '<p><label>Ruimtes:<br><select name="rr_ruimte_ids[]" multiple size="4" required ' . $veld_style . '>';
+    echo '<table class="form-table"><tbody>';
+    echo '<tr><th scope="row"><label for="rr_titel">Titel</label></th><td><input type="text" id="rr_titel" name="rr_titel" value="' . esc_attr($titel) . '" required ' . $veld_style . '></td></tr>';
+    echo '<tr><th scope="row"><label for="rr_ruimte_ids">Ruimtes</label></th><td><select id="rr_ruimte_ids" name="rr_ruimte_ids[]" multiple size="4" required aria-describedby="rr_ruimte_ids_help" ' . $veld_style . '>';
     foreach ($ruimtes as $r) {
         $sel = in_array($r->ID, $ruimte_ids) ? 'selected' : '';
         echo '<option value="' . $r->ID . '" ' . $sel . '>' . esc_html($r->post_title) . '</option>';
     }
-    echo '</select><br><small>Houd Ctrl (Windows) of Cmd (Mac) ingedrukt om meerdere ruimtes te selecteren.</small></label></p>';
-    echo '<p><label>Persoon:<br><select name="rr_persoon_id" required ' . $veld_style . '>';
+    echo '</select><p class="description" id="rr_ruimte_ids_help">Houd Ctrl (Windows) of Cmd (Mac) ingedrukt om meerdere ruimtes te selecteren.</p></td></tr>';
+    echo '<tr><th scope="row"><label for="rr_persoon_id">Persoon</label></th><td><select id="rr_persoon_id" name="rr_persoon_id" required ' . $veld_style . '>';
     foreach ($personen as $p) {
         $sel = $persoon_id == $p->ID ? 'selected' : '';
         echo '<option value="' . $p->ID . '" ' . $sel . '>' . esc_html($p->post_title) . '</option>';
     }
-    echo '</select></label></p>';
-    echo '<p><label>Start datum/tijd:<br><input type="datetime-local" name="rr_start" value="' . esc_attr($start) . '" required ' . $veld_style . '></label></p>';
-    echo '<p><label>Eind datum/tijd:<br><input type="datetime-local" name="rr_eind" value="' . esc_attr($eind) . '" required ' . $veld_style . '></label></p>';
-    echo '<p><label>Aantal personen:<br><input type="number" name="rr_aantal_personen" value="' . esc_attr($aantal_personen) . '" min="1" step="1" required ' . $veld_style . '></label></p>';
-    echo '<p><label>Agenda:<br><input type="text" name="rr_agenda" value="' . esc_attr($agenda) . '" ' . $veld_style . '></label></p>';
+    echo '</select></td></tr>';
+    echo '<tr><th scope="row"><label for="rr_start">Start datum/tijd</label></th><td><input type="datetime-local" id="rr_start" name="rr_start" value="' . esc_attr($start) . '" required ' . $veld_style . '></td></tr>';
+    echo '<tr><th scope="row"><label for="rr_eind">Eind datum/tijd</label></th><td><input type="datetime-local" id="rr_eind" name="rr_eind" value="' . esc_attr($eind) . '" required ' . $veld_style . '></td></tr>';
+    echo '<tr><th scope="row"><label for="rr_aantal_personen">Aantal personen</label></th><td><input type="number" id="rr_aantal_personen" name="rr_aantal_personen" value="' . esc_attr($aantal_personen) . '" min="1" step="1" required ' . $veld_style . '></td></tr>';
+    echo '<tr><th scope="row"><label for="rr_agenda">Agenda</label></th><td><input type="text" id="rr_agenda" name="rr_agenda" value="' . esc_attr($agenda) . '" ' . $veld_style . '></td></tr>';
     $checked = $goedgekeurd == '1' ? 'checked' : '';
-    echo '<p><label><input type="checkbox" name="rr_goedgekeurd" value="1" ' . $checked . '> Goedgekeurd</label></p>';
+    echo '<tr><th scope="row"><label for="rr_goedgekeurd">Goedgekeurd</label></th><td><input type="checkbox" id="rr_goedgekeurd" name="rr_goedgekeurd" value="1" ' . $checked . '></td></tr>';
+    echo '</tbody></table>';
     echo '<p>';
     echo '<button type="submit" class="button button-primary">Opslaan</button> ';
     echo '<a href="' . $back_url . '" class="button">Annuleren</a>';
