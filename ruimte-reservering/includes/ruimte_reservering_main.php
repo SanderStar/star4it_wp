@@ -217,6 +217,7 @@ function rr_admin_reserveringen_form($id = 0) {
     $start = '';
     $eind = '';
     $aantal_personen = '';
+    $agenda = '';
     $goedgekeurd = '';
     $conflict = false;
     if ($id) {
@@ -228,6 +229,7 @@ function rr_admin_reserveringen_form($id = 0) {
         $start = get_post_meta($id, 'start_dt', true);
         $eind = get_post_meta($id, 'eind_dt', true);
         $aantal_personen = get_post_meta($id, 'aantal_personen', true);
+        $agenda = get_post_meta($id, 'agenda', true);
         $goedgekeurd = get_post_meta($id, 'goedgekeurd', true);
         $aanmaak_dt = get_post_meta($id, 'aanmaak_dt', true);
         $goedgekeurd_dt = get_post_meta($id, 'goedgekeurd_dt', true);
@@ -243,6 +245,7 @@ function rr_admin_reserveringen_form($id = 0) {
         $start = sanitize_text_field($_POST['rr_start']);
         $eind = sanitize_text_field($_POST['rr_eind']);
         $aantal_personen = intval($_POST['rr_aantal_personen']);
+        $agenda = isset($_POST['rr_agenda']) ? sanitize_text_field($_POST['rr_agenda']) : '';
         $goedgekeurd_nieuw = isset($_POST['rr_goedgekeurd']) ? '1' : '0';
 
         $fout = '';
@@ -285,6 +288,7 @@ function rr_admin_reserveringen_form($id = 0) {
                     update_post_meta($id, 'start_dt', $start);
                     update_post_meta($id, 'eind_dt', $eind);
                     update_post_meta($id, 'aantal_personen', $aantal_personen);
+                    update_post_meta($id, 'agenda', $agenda);
                     update_post_meta($id, 'goedgekeurd', $goedgekeurd_nieuw);
                     // Goedkeuringsdatum opslaan of wissen
                     $bestaande_dt = get_post_meta($id, 'goedgekeurd_dt', true);
@@ -304,6 +308,7 @@ function rr_admin_reserveringen_form($id = 0) {
                     update_post_meta($rid, 'start_dt', $start);
                     update_post_meta($rid, 'eind_dt', $eind);
                     update_post_meta($rid, 'aantal_personen', $aantal_personen);
+                    update_post_meta($rid, 'agenda', $agenda);
                     update_post_meta($rid, 'goedgekeurd', $goedgekeurd);
                     update_post_meta($rid, 'aanmaak_dt', current_time('mysql'));
                     echo '<div class="updated notice"><p>Reservering toegevoegd.</p></div>';
@@ -365,6 +370,7 @@ function rr_admin_reserveringen_form($id = 0) {
     echo '<p><label>Start datum/tijd:<br><input type="datetime-local" name="rr_start" value="' . esc_attr($start) . '" required ' . $veld_style . '></label></p>';
     echo '<p><label>Eind datum/tijd:<br><input type="datetime-local" name="rr_eind" value="' . esc_attr($eind) . '" required ' . $veld_style . '></label></p>';
     echo '<p><label>Aantal personen:<br><input type="number" name="rr_aantal_personen" value="' . esc_attr($aantal_personen) . '" min="1" step="1" required ' . $veld_style . '></label></p>';
+    echo '<p><label>Agenda:<br><input type="text" name="rr_agenda" value="' . esc_attr($agenda) . '" ' . $veld_style . '></label></p>';
     $checked = $goedgekeurd == '1' ? 'checked' : '';
     echo '<p><label><input type="checkbox" name="rr_goedgekeurd" value="1" ' . $checked . '> Goedgekeurd</label></p>';
     echo '<p>';
@@ -382,6 +388,7 @@ add_action('init', 'rr_add_ical_rewrite');
 
 function rr_add_ical_query_var($vars) {
     $vars[] = 'rr_ical';
+    $vars[] = 'agenda';
     return $vars;
 }
 add_filter('query_vars', 'rr_add_ical_query_var');
@@ -395,7 +402,21 @@ function rr_ical_template() {
     header('Content-Disposition: inline; filename="ruimte-reservering.ics"');
     echo "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Ruimte Reservering//NL\n";
     $vandaag = date_i18n('Y-m-d', current_time('timestamp'));
-    $reserveringen = get_posts(['post_type' => 'reservering', 'numberposts' => -1]);
+    $tijdzone = wp_timezone();
+    $utc = new DateTimeZone('UTC');
+    $agenda_param = get_query_var('agenda', '');
+    $agenda = is_string($agenda_param) ? sanitize_text_field($agenda_param) : '';
+    $args = ['post_type' => 'reservering', 'numberposts' => -1];
+    if ($agenda !== '') {
+        $args['meta_query'] = [
+            [
+                'key' => 'agenda',
+                'value' => $agenda,
+                'compare' => '=',
+            ],
+        ];
+    }
+    $reserveringen = get_posts($args);
     foreach ($reserveringen as $r) {
         $ruimte_ids = get_post_meta($r->ID, 'ruimte_ids', true);
         if (!is_array($ruimte_ids)) { $ruimte_ids = $ruimte_ids ? array($ruimte_ids) : array(); }
@@ -406,7 +427,13 @@ function rr_ical_template() {
         $persoon = get_post_meta($r->ID, 'persoon_id', true);
         $start = get_post_meta($r->ID, 'start_dt', true);
         $eind = get_post_meta($r->ID, 'eind_dt', true);
-        if (!$start || date('Y-m-d', strtotime($start)) < $vandaag) {
+        $start_dt = $start ? date_create($start, $tijdzone) : false;
+        $eind_dt = $eind ? date_create($eind, $tijdzone) : false;
+        if (!$start_dt || !$eind_dt) {
+            error_log('Ruimte Reservering: ongeldige datum/tijd voor reservering ' . $r->ID);
+            continue;
+        }
+        if ($start_dt->format('Y-m-d') < $vandaag) {
             continue;
         }
         $aantal_personen = get_post_meta($r->ID, 'aantal_personen', true);
@@ -414,8 +441,8 @@ function rr_ical_template() {
         $goedgekeurd_label = $goedgekeurd == '1' ? 'Ja' : 'Nee';
         echo "BEGIN:VEVENT\n";
         echo "UID:rr-" . $r->ID . "@example.com\n";
-        echo "DTSTART:" . gmdate('Ymd\\THis\\Z', strtotime($start)) . "\n";
-        echo "DTEND:" . gmdate('Ymd\\THis\\Z', strtotime($eind)) . "\n";
+        echo "DTSTART:" . $start_dt->setTimezone($utc)->format('Ymd\\THis\\Z') . "\n";
+        echo "DTEND:" . $eind_dt->setTimezone($utc)->format('Ymd\\THis\\Z') . "\n";
         echo "SUMMARY:" . addslashes($r->post_title) . "\n";
         echo "DESCRIPTION:Ruimte(s): " . addslashes(implode(', ', $ruimte_namen)) . "\\nVerantwoordelijke: " . addslashes(get_the_title($persoon)) . "\\nAantal personen: " . addslashes($aantal_personen) . "\\nGoedgekeurd: " . $goedgekeurd_label . "\n";
         echo "END:VEVENT\n";

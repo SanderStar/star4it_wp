@@ -18,5 +18,13 @@ Deze plugin biedt een compleet systeem voor het beheren van ruimtes, personen en
 ## iCal Export
 De iCal-feed is beschikbaar op: `https://jouwdomein.nl/ruimte-reservering.ics`
 
+Reserveringstijden worden geïnterpreteerd in de tijdzone van WordPress (Instellingen > Algemeen) en in UTC geëxporteerd.
+
+Elke reservering kan een optionele waarde voor **Agenda** krijgen. Filter de iCal-feed op een exacte Agenda-waarde met de `agenda`-parameter, bijvoorbeeld:
+
+`https://jouwdomein.nl/ruimte-reservering.ics?agenda=Team%20A`
+
+Zonder deze parameter bevat de feed reserveringen uit alle agenda's.
+
 ## Ondersteuning
 Voor vragen of problemen, neem contact op met de ontwikkelaar.
