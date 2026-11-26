@@ -4,6 +4,7 @@ Deze plugin biedt een compleet systeem voor het beheren van ruimtes, personen en
 
 ## Functies
 - Beheer ruimtes, personen en reserveringen via custom admin pagina's
+- Het reserveringenoverzicht toont de Agenda per reservering
 - Telefoonnummer bij personen
 - iCal export via `/ruimte-reservering.ics`
 - Frontend reserveringsformulier (shortcode `[ruimte_reservering_form]`)

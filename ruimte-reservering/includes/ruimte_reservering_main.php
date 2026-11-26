@@ -190,7 +190,7 @@ function rr_admin_reserveringen_page() {
         echo '<div class="updated notice"><p>Reservering verwijderd.</p></div>';
     }
     $reserveringen = get_posts(['post_type'=>'reservering','numberposts'=>-1]);
-    echo '<table class="widefat"><thead><tr><th>Titel</th><th>Ruimtes</th><th>Persoon</th><th>Start</th><th>Eind</th><th>Aantal personen</th><th>Aangemaakt op</th><th>Goedgekeurd</th><th>Goedgekeurd op</th><th>Acties</th></tr></thead><tbody>';
+    echo '<table class="widefat"><thead><tr><th>Titel</th><th>Agenda</th><th>Ruimtes</th><th>Persoon</th><th>Start</th><th>Eind</th><th>Aantal personen</th><th>Aangemaakt op</th><th>Goedgekeurd</th><th>Goedgekeurd op</th><th>Acties</th></tr></thead><tbody>';
     foreach ($reserveringen as $r) {
         $ruimte_ids = get_post_meta($r->ID, 'ruimte_ids', true);
         if (!is_array($ruimte_ids)) { $ruimte_ids = $ruimte_ids ? array($ruimte_ids) : array(); }
@@ -199,6 +199,7 @@ function rr_admin_reserveringen_page() {
             $ruimte_namen[] = get_the_title($rid);
         }
         $persoon = get_post_meta($r->ID, 'persoon_id', true);
+        $agenda = get_post_meta($r->ID, 'agenda', true);
         $start = get_post_meta($r->ID, 'start_dt', true);
         $eind = get_post_meta($r->ID, 'eind_dt', true);
         $aantal_personen = get_post_meta($r->ID, 'aantal_personen', true);
@@ -208,7 +209,7 @@ function rr_admin_reserveringen_page() {
         $goedgekeurd_dt = get_post_meta($r->ID, 'goedgekeurd_dt', true);
         $aanmaak_dt_str = $aanmaak_dt ? esc_html(date_i18n('d-m-Y H:i', strtotime($aanmaak_dt))) : '';
         $goedgekeurd_dt_str = $goedgekeurd_dt ? esc_html(date_i18n('d-m-Y H:i', strtotime($goedgekeurd_dt))) : '';
-        echo '<tr><td>' . esc_html($r->post_title) . '</td><td>' . implode(', ', $ruimte_namen) . '</td><td>' . esc_html(get_the_title($persoon)) . '</td><td>' . esc_html($start) . '</td><td>' . esc_html($eind) . '</td><td>' . esc_html($aantal_personen) . '</td><td>' . $aanmaak_dt_str . '</td><td>' . $goedgekeurd_label . '</td><td>' . $goedgekeurd_dt_str . '</td>';
+        echo '<tr><td>' . esc_html($r->post_title) . '</td><td>' . esc_html($agenda) . '</td><td>' . implode(', ', $ruimte_namen) . '</td><td>' . esc_html(get_the_title($persoon)) . '</td><td>' . esc_html($start) . '</td><td>' . esc_html($eind) . '</td><td>' . esc_html($aantal_personen) . '</td><td>' . $aanmaak_dt_str . '</td><td>' . $goedgekeurd_label . '</td><td>' . $goedgekeurd_dt_str . '</td>';
         echo '<td><a href="admin.php?page=rr_reserveringen&action=edit&id=' . $r->ID . '">Bewerken</a> | <a href="admin.php?page=rr_reserveringen&action=delete&id=' . $r->ID . '" onclick="return confirm(\'Weet je het zeker?\')">Verwijderen</a></td></tr>';
     }
     echo '</tbody></table></div>';
