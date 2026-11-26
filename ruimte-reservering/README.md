@@ -11,7 +11,13 @@ Deze plugin biedt een compleet systeem voor het beheren van ruimtes, personen en
 - Conflict-detectie bij reserveringen
 
 ## Installatie
-1. Upload de map `ruimte-reservering` als zip via het WordPress admin plugin scherm.
+1. Maak vanuit de hoofdmap van de repository een zip van de volledige map `ruimte-reservering`, niet alleen van de inhoud. De zip moet beginnen met:
+   ```text
+   ruimte-reservering/
+     ruimte_reservering.php
+     includes/
+   ```
+   Upload de zip via het WordPress admin plugin scherm. Kies bij een bestaande installatie voor het vervangen van de huidige versie.
 2. Activeer de plugin.
 3. Gebruik het menu "Ruimte Reservering" in de admin voor beheer.
 4. Voeg het reserveringsformulier toe aan een pagina met de shortcode `[ruimte_reservering_form]`.
